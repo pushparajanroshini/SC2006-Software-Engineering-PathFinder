@@ -1,25 +1,79 @@
-import logo from './logo.svg';
+import React from 'react';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Link
+} from 'react-router-dom';
 import './App.css';
+import Header from './header';
+import Main from './Component';
+import ManageWallet from './Wallet';
+import Login from './Login';
+import TripHist from './TripHistory';
 
-function App() {
+const App = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <div className="app-container">
+      <Header />
+        <Routes>
+          <Route path="/" element={<MainPage />} />
+          <Route path="/About" element={<About />} />
+          <Route path="/Contact" element={<Contact />} />
+          <Route path="/Login" element={<Login />} />
+          <Route path="/Details" element={<Details />} />
+          <Route path="/TripHistory" element={<TripHistory />} />
+          <Route path="/ManageWalletBalance" element={<ManageWalletBalance />} />
+          <Route path="/Logout" element={<Logout />} />
+          {/* Add other routes here */}
+        </Routes>
+      </div>
+    </Router>
   );
-}
+};
+
+const MainPage = () => {
+  return (
+    <Main />
+  );
+};
+const About = () => {
+  return (
+    <Main />
+  );
+};
+const Contact = () => {
+  return (
+    <Main />
+  );
+};
+const Details = () => {
+  return (
+    <Main />
+  );
+};
+const TripHistory = () => {
+  return (
+    <TripHist />
+  );
+};
+const ManageWalletBalance = () => {
+  return (
+    <ManageWallet />
+  );
+};
+
+const userLogin = () => {
+  return (
+    <Login />
+  );
+};
+
+const Logout = () => {
+  return (
+    <Main />
+  );
+};
 
 export default App;
