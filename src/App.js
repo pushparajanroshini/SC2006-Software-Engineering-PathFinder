@@ -11,6 +11,7 @@ import Main from './Component';
 import ManageWallet from './Wallet';
 import Login from './Login';
 import TripHist from './TripHistory';
+import ManageProfile from './Profile';
 
 const App = () => {
   return (
@@ -18,11 +19,11 @@ const App = () => {
       <div className="app-container">
       <Header />
         <Routes>
-          <Route path="/" element={<MainPage />} />
+          <Route path="/" element={<Login />} />
+          <Route path="/Home" element={<MainPage />} />
           <Route path="/About" element={<About />} />
           <Route path="/Contact" element={<Contact />} />
-          <Route path="/Login" element={<Login />} />
-          <Route path="/Details" element={<Details />} />
+          <Route path="/ManageProfile" element={<Profile />} />
           <Route path="/TripHistory" element={<TripHistory />} />
           <Route path="/ManageWalletBalance" element={<ManageWalletBalance />} />
           <Route path="/Logout" element={<Logout />} />
@@ -48,9 +49,9 @@ const Contact = () => {
     <Main />
   );
 };
-const Details = () => {
+const Profile = () => {
   return (
-    <Main />
+    <ManageProfile />
   );
 };
 const TripHistory = () => {

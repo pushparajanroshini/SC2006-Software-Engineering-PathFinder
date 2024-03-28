@@ -1,5 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './TripHistory.css';
+
+const MonthNavigator = () => {
+  const [currentMonth, setCurrentMonth] = useState('Jan');
+
+  // You could replace these with a dynamic calculation based on date objects if needed
+  const previousMonth = () => {
+    setCurrentMonth('Dec'); // replace with actual logic
+  };
+
+  const nextMonth = () => {
+    setCurrentMonth('Feb'); // replace with actual logic
+  };
+
+  return (
+    <div className="month-navigator">
+      <button onClick={previousMonth}>{'<'}</button>
+      <span>{currentMonth}</span>
+      <button onClick={nextMonth}>{'>'}</button>
+      {/* You can also include the "press to see next month's record" text as needed */}
+    </div>
+  );
+};
 
 const TripSummary = () => {
   return (
@@ -12,15 +34,15 @@ const TripSummary = () => {
   );
 };
 
-const Trip = ({ tripId, date, from, to, duration, cost, status }) => {
+const Trip = ({ name, date, from, to, duration, cost, status }) => {
   return (
     <div className="trip">
-      <div className="trip-id">{tripId}</div>
+      <div className="trip-id">{name}</div>
       <div className="trip-date">{date}</div>
       <div className="trip-detail">
-        {from} → {to} {duration} {cost}
+        {from} → {to} | {duration} | {cost}
       </div>
-      <div className="trip-status">{status}</div>
+      <div className="trip-status">Status: {status}</div>
       {status === 'Ongoing' && <button>Edit</button>}
     </div>
   );
@@ -30,7 +52,8 @@ const TripHistory = () => {
   // This would ideally come from a backend or state management system
   const trips = [
     {
-      id: 'Trip 1',
+      id: '1',
+      name: 'Trip 1',
       date: '24 Feb 2024',
       from: 'Test Avenue Street 11',
       to: 'Test Avenue Street 11',
@@ -47,6 +70,7 @@ const TripHistory = () => {
       {trips.map((trip) => (
         <Trip key={trip.id} {...trip} />
       ))}
+
     </div>
   );
 };
@@ -54,6 +78,7 @@ const TripHistory = () => {
 const App = () => {
   return (
     <div>
+      <MonthNavigator />
       <main>
         <TripHistory />
       </main>

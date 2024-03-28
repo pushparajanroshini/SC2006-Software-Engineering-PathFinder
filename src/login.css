@@ -1,3 +1,4 @@
+
 input[type="text"]{
   padding: 0px;
   margin: 0px;
@@ -25,7 +26,7 @@ input[type="text"]{
     border-radius: 4px;
   }
   
-  button {
+  button , button a{
     width: 100%;
     padding: 10px;
     margin-top: 10px;
@@ -40,8 +41,8 @@ input[type="text"]{
     background-color: #4cae4c;
   }
   
-  a {
-    display: inline-block;
+  a{
+    display: inline;
     margin-top: 10px;
     color: #337ab7;
     text-decoration: none;
@@ -55,4 +56,4 @@ input[type="text"]{
     display: flex;
     justify-content: center;
     gap: 20px; /* Space between login and register forms */
-  }  
+  }

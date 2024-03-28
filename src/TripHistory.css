@@ -5,6 +5,23 @@ main{
   justify-content: center;
 }
 
+.month-navigator {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Center month navigation horizontally */
+  margin: 20px 0; /* Add some margin above and below */
+}
+
+.month-navigator button {
+  border: none;
+  cursor: pointer;
+  margin: 0 10px; /* Add some space around the arrows */
+  width: 50px;
+}
+
+.month-navigator span {
+  font-weight: bold;
+}
 .trip-summary {
     display: flex;
     justify-content: space-between;
