@@ -162,3 +162,99 @@ main {
 }
 
 /* Add more styles as necessary */
+
+.route-planner {
+  position: relative;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+}
+
+.map-background {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: -1;
+  background-size: cover;
+  background-position: center;
+}
+
+.addresses,
+.route-info {
+  margin-top: 10%; /* Adjust as needed */
+  background: rgba(255, 255, 255, 0.9);
+  padding: 1rem;
+  border-radius: 4px;
+  z-index: 2; /* To make sure it's above the map */
+}
+
+.address-input {
+  display: block;
+  width: 100%; /* Full width of the form container */
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+}
+
+.time-info,
+.routes {
+  margin-top: 1rem;
+}
+
+.time-info label,
+.time-info input,
+.routes .route {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.routes .route {
+  background: #f8f8f8;
+  padding: 0.5rem;
+  border-radius: 4px;
+  display: flex;
+}
+.route div{
+  margin: 10px;
+}
+
+button {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+.time-info-container{
+  display: flex;
+  justify-content: space-between;
+}
+.time-info-container input, .time-info-container label{
+  margin: 10px;
+}
+.travel-mode, .filter-mode{
+  margin-top: 12%;
+}
+.travel-mode-container div{
+  display: flex;
+  justify-content: space-between;
+}
+.travel-mode-container label{
+  display: block;
+  margin: 10px;
+}
+.filter-mode-container ul{
+  list-style-type: none;
+  margin-left:10px;
+}
+.filter-mode-container ul, .routes, .travel-mode-container{
+  padding: 20px;
+  border: 1px solid black;
+}

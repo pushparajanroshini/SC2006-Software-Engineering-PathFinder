@@ -97,33 +97,31 @@
 // };
 
 // export default Login;
-import React, { useState } from 'react';
+import React from 'react';
+import './login.css'; // Ensure this is the path to your CSS file
 import { Link } from 'react-router-dom';
-import './login.css';
 
-const LoginPage = () => {
-  const [credentials, setCredentials] = useState({
-    username: '',
-    password: '',
-  });
-
-  // Handle change and submit functions here
+const Login = () => {
+  // ... any required state and functions
 
   return (
-    <div className="container">
+    <div className="background-image">
+    <div className="login-container">
       <div className="login-form">
         <h1>Pathfinder</h1>
         <form>
-          <input type="text" name="username" placeholder="Username" />
-          <input type="password" name="password" placeholder="Password" />
-          { <button ><Link to ='/Home'>Sign In</Link></button> /* change to type="submit" */}
+          {/* Form fields */}
+          <input type="text" placeholder="Username" />
+          <input type="password" placeholder="Password" />
+          <button type="submit">Sign In</button>
+          <a href="#">Forget Password?</a>
+          <a href="#"><Link to='/Register'>Register</Link></a>
         </form>
-        <div className="login-help">
-        <a href="#">Forget Password?</a>
-        </div>
+
       </div>
+    </div>
     </div>
   );
 };
 
-export default LoginPage;
+export default Login;

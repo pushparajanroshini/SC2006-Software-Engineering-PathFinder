@@ -12,6 +12,7 @@ import ManageWallet from './Wallet';
 import Login from './Login';
 import TripHist from './TripHistory';
 import ManageProfile from './Profile';
+import Register from './Register';
 
 const App = () => {
   return (
@@ -20,6 +21,7 @@ const App = () => {
       <Header />
         <Routes>
           <Route path="/" element={<Login />} />
+          <Route path="/Register" element={<Register />} />
           <Route path="/Home" element={<MainPage />} />
           <Route path="/About" element={<About />} />
           <Route path="/Contact" element={<Contact />} />
@@ -69,6 +71,12 @@ const ManageWalletBalance = () => {
 const userLogin = () => {
   return (
     <Login />
+  );
+};
+
+const userRegister = () => {
+  return (
+    <Register />
   );
 };
 
