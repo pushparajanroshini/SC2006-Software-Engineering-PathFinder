@@ -4,7 +4,7 @@ const readline = require('readline');
 
 // Read the CSV file and process the data
 const faresData = [];
-fs.createReadStream('FaresMRTLRT.csv')
+fs.createReadStream('src\\FaresMRT.csv')
   .pipe(csv())
   .on('data', (data) => {
     // Filter out rows where applicable_time is not "All other timings"
@@ -61,10 +61,10 @@ fs.createReadStream('FaresMRTLRT.csv')
       // Convert distance to a float
       distance = parseFloat(distance);
       // Calculate the fare based on the distance entered
-      const fare = calculateFare(distance);
+      const fare = calculateFare(distance).toFixed(2);
 
       if (fare !== null) {
-        console.log(`The fare for your journey of ${distance} km is $${fare.toFixed(2)}.`);
+        console.log(`$${fare}`);
       } else {
         console.log('No fare found for the entered distance.');
       }
