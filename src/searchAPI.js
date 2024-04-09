@@ -4,8 +4,32 @@
 //also outputs 
 
 // Usage example:
-const authorizationToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjMDhmOGUzOTBhZDg1ODk1OGYyODNjMDA5MGY4ZjQ0YiIsImlzcyI6Imh0dHA6Ly9pbnRlcm5hbC1hbGItb20tcHJkZXppdC1pdC0xMjIzNjk4OTkyLmFwLXNvdXRoZWFzdC0xLmVsYi5hbWF6b25hd3MuY29tL2FwaS92Mi91c2VyL3Bhc3N3b3JkIiwiaWF0IjoxNzEyMzcxNzQxLCJleHAiOjE3MTI2MzA5NDEsIm5iZiI6MTcxMjM3MTc0MSwianRpIjoicHNTdmRiR29hd2M0Z1dKYiIsInVzZXJfaWQiOjMxNjksImZvcmV2ZXIiOmZhbHNlfQ.qFw87gCw4QoY_jfg2w4iUISwH5hjxrXbZhm1c0z78-I";
+//const authorizationToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjMDhmOGUzOTBhZDg1ODk1OGYyODNjMDA5MGY4ZjQ0YiIsImlzcyI6Imh0dHA6Ly9pbnRlcm5hbC1hbGItb20tcHJkZXppdC1pdC0xMjIzNjk4OTkyLmFwLXNvdXRoZWFzdC0xLmVsYi5hbWF6b25hd3MuY29tL2FwaS92Mi91c2VyL3Bhc3N3b3JkIiwiaWF0IjoxNzEyMzcxNzQxLCJleHAiOjE3MTI2MzA5NDEsIm5iZiI6MTcxMjM3MTc0MSwianRpIjoicHNTdmRiR29hd2M0Z1dKYiIsInVzZXJfaWQiOjMxNjksImZvcmV2ZXIiOmZhbHNlfQ.qFw87gCw4QoY_jfg2w4iUISwH5hjxrXbZhm1c0z78-I";
+//const cookie = "_toffsuid=rB8E8GYL5xNLXUnGBoCUAg==";
+
+
+const axios = require('axios');
 const cookie = "_toffsuid=rB8E8GYL5xNLXUnGBoCUAg==";
+
+const data = {
+  email: "pushparajanroshini.rcy@gmail.com",
+  password: "helloiamusingonemap9$"
+};
+
+
+let authorizationToken; // Declare the variable to store the token
+
+axios.post('https://www.onemap.gov.sg/api/auth/post/getToken', data)
+  .then(response => {
+    // Extract the token from the response data
+    authorizationToken = response.data.access_token;
+    //console.log('Authorization Token:', authorizationToken); // Log the token
+  })
+  .catch(error => {
+    // Handle error here
+    console.error('Error:', error);
+  });
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 function findNearestTaxi(startCoordinates, taxiData) {
