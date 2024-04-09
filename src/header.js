@@ -1,6 +1,7 @@
 // Header.js
 import React from 'react';
 import { Link } from 'react-router-dom';
+import CurrentUser from './CurrentUser'; // Import the CurrentUser component
 
 const Header = () => {
   return (
@@ -18,10 +19,14 @@ const Header = () => {
       <div className="header-right">
         <div className="fund-info">FUND IS LOW $9.0</div>
         <div className="user-menu">
-          <div className="user-greeting"><Link to="/">Login / Sign Up</Link></div>
+          {/* Display the user's email if logged in, or "Login / Sign Up" link otherwise */}
+          <div className="user-greeting">
+            <CurrentUser />
+          </div>
           <ul className="user-options">
             <li><Link to="/ManageWalletBalance">Manage Wallet Balance</Link></li>
             <li><Link to="/Logout">Log Out</Link></li>
+            <li><Link to="/Current">Check currentuser</Link></li>
           </ul>
         </div>
       </div>

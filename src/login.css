@@ -78,7 +78,7 @@ input[type="text"]{
     
   }
   
-  .login-form input[type="text"],
+  .login-form input[type="email"],
   .login-form input[type="password"] {
     margin: 0.5rem 0; /* Spacing between text fields */
     padding: 0.5rem;

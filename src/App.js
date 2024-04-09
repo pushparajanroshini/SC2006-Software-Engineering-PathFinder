@@ -3,8 +3,12 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Link
+  Link,
+  useHistory
 } from 'react-router-dom';
+
+
+
 import './App.css';
 import Header from './header';
 import Main from './Component';
@@ -13,6 +17,9 @@ import Login from './Login';
 import TripHist from './TripHistory';
 import ManageProfile from './Profile';
 import Register from './Register';
+import Logout from './Logout';
+import Current from './CurrentUser';
+import ForgetPw from './ForgetPw';
 
 const App = () => {
   return (
@@ -21,6 +28,7 @@ const App = () => {
       <Header />
         <Routes>
           <Route path="/" element={<Login />} />
+          <Route path="/Login" element={<Login />} />
           <Route path="/Register" element={<Register />} />
           <Route path="/Home" element={<MainPage />} />
           <Route path="/About" element={<About />} />
@@ -29,6 +37,9 @@ const App = () => {
           <Route path="/TripHistory" element={<TripHistory />} />
           <Route path="/ManageWalletBalance" element={<ManageWalletBalance />} />
           <Route path="/Logout" element={<Logout />} />
+          <Route path="/Current" element={<Current />} />
+          <Route path="/ForgetPw" element={<ForgetPw/>} />
+
           {/* Add other routes here */}
         </Routes>
       </div>
@@ -61,7 +72,7 @@ const TripHistory = () => {
     <TripHist />
   );
 };
-/*test*/
+
 const ManageWalletBalance = () => {
   return (
     <ManageWallet />
@@ -79,11 +90,11 @@ const userRegister = () => {
     <Register />
   );
 };
-
+/*
 const Logout = () => {
   return (
     <Main />
   );
 };
-
+*/
 export default App;

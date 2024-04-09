@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import "./Register.css";
+import { getAuth, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { collection, addDoc } from "firebase/firestore"; // Import 'firestore' from your firebase.js file
+import { db } from "./firebase";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -18,24 +21,53 @@ const Register = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Registration logic goes here
-    // Make sure to validate the passwords match and handle any other validation
-    console.log(formData);
+    try {
+      // Create the user with email and password
+      const auth = getAuth();
+      const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+      
+      // Access the newly created user's UID
+      //const userId = userCredential.user.uid;
+
+      // Access the Firestore collection 'users'
+      //const usersCollection = firestore.collection('users');
+
+      const docRef = await addDoc(collection(db, "users"), {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email
+    
+
+      // Add the user's data to Firestore
+     // await usersCollection.doc(userId).set({
+      // firstName: formData.firstName,
+       // lastName: formData.lastName,
+        //email: formData.email
+        // Add more fields if needed
+      });
+
+      console.log('User registered successfully');
+      window.location.href = "/TripHistory";
+    } catch (error) {
+      console.error('Error registering user:', error);
+    }
   };
 
   return (
     <div className="form-container">
       <h1>Register for Pathfinder</h1>
-      <form onSubmit={handleSubmit} className="register-form">
+      <form onSubmit={handleSubmit} className="register-form" id="MainForm">
         <label htmlFor="firstName">First Name</label>
         <input
           id="firstName"
           name="firstName"
           type="text"
           value={formData.firstName}
-          onChange={handleChange}
+          onChange={handleChange} 
+          placeholder='John'
         />
 
         <label htmlFor="lastName">Last Name</label>
@@ -45,6 +77,7 @@ const Register = () => {
           type="text"
           value={formData.lastName}
           onChange={handleChange}
+          placeholder='Doe'
         />
 
         <label htmlFor="email">Email</label>

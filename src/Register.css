@@ -18,10 +18,25 @@
     margin-bottom: .5rem;
   }
   
-  .register-form input[type="text"],
-  .register-form input[type="email"],
+  .register-form input[type="text"]{
+    display: flex;
+    width: 95%;
+    padding: 8px;
+    margin: 0;
+    margin-bottom: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  .register-form input[type="email"]{
+    display: flex;
+    width: 95%;
+    padding: 8px;
+    margin-bottom: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
   .register-form input[type="password"] {
-    width: 100%;
+    width: 95%;
     padding: 8px;
     margin-bottom: 1rem;
     border: 1px solid #ddd;
