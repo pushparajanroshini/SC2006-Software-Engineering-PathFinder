@@ -113,7 +113,7 @@ const Login = () => {
           {/* Form fields */}
           <input type="text" placeholder="Username" />
           <input type="password" placeholder="Password" />
-          <button type="submit">Sign In</button>
+          <button type="submit"><Link to='/Home'>Sign In</Link></button>
           <a href="#">Forget Password?</a>
           <a href="#"><Link to='/Register'>Register</Link></a>
         </form>
