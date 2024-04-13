@@ -1,9 +1,10 @@
 // Header.js
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import CurrentUser from './CurrentUser'; // Import the CurrentUser component
 
 const Header = () => {
+  const navigate = useNavigate();
   return (
     <header className="app-header">
       <div className="header-left">
@@ -24,9 +25,9 @@ const Header = () => {
             <CurrentUser />
           </div>
           <ul className="user-options">
-            <li><Link to="/ManageWalletBalance">Manage Wallet Balance</Link></li>
-            <li><Link to="/Logout">Log Out</Link></li>
-            <li><Link to="/Current">Check currentuser</Link></li>
+            <li onClick={() => {navigate("/ManageWalletBalance")}}>Manage Wallet Balance</li>
+            <li onClick={() => {navigate("/Logout")}}>Log Out</li>
+            <li onClick={() => {navigate("/Current")}}>Check current user</li>          
           </ul>
         </div>
       </div>

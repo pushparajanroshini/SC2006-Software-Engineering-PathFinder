@@ -8,8 +8,10 @@ import { getAuth,
         } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "./firebase";
-import { sendEmailVerification } from "firebase/auth";
+import { sendEmailVerification, verifyBeforeUpdateEmail } from "firebase/auth";
 import "./Profile.css";
+
+
 
 const EditProfile = () => {
   const [user, setUser] = useState({
@@ -62,14 +64,31 @@ const EditProfile = () => {
       }
       // Update user email if a new email is provided
       if (user.email.trim() !== '' && user.email !== currentUser.email) {
-        await updateEmail(currentUser, user.email);
+        verifyBeforeUpdateEmail(auth.currentUser, user.email).then(() => {
+
+          // Email updated!
+          // ...
+          console.log("Email updated! ", user);
+        }).catch((error) => {
+          // An error occurred
+          // ...
+          console.error("Email update failed:", error.message);
+        });
       }
   
       // Update user password if a new password is provided
-      if (user.password.trim() !== '') {
-        await updatePassword(currentUser, user.password);
+  
+      if (user.password.trim() !== '' && user.password !== null) {
+        updatePassword(currentUser, user.password).then(() => {
+          // Update successful.
+          console.log("Password update successful!", user);
+        }).catch((error) => {
+          // An error ocurred
+          // ...
+          console.error("Password update failed!", error.message);
+        });
       }
-    
+
 
   
       console.log('User profile updated successfully');
