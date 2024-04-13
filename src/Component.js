@@ -1,99 +1,217 @@
-import React, { useState } from 'react';
-// Make sure to import your CSS file
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './index.css';
 import PromptLocationPermission from './promptLocationPermission.js';
 import LocationComponent from './promptLocationPermission.js';
 
 const RoutePlanner = () => {
-  const [currentAddress, setCurrentAddress] = useState('');
-  const [destinationAddress, setDestinationAddress] = useState('');
-  const [departTime, setDepartTime] = useState('23:59');
-  const [depoartDate, setDepartDate] = useState('new Date().toLocaleString() + ""');
+  const [startAddress, setStartAddress] = useState('');
+  const [endAddress, setEndAddress] = useState('');
+  const [date, setDate] = useState('');
+  const [time, setTime] = useState('');
+  const [routes, setRoutes] = useState([]);
+  const [filteredRoutes, setFilteredRoutes] = useState([]);
+  const [filterOption, setFilterOption] = useState('fastest'); // Default filter option
   const [location, setLocation] = useState({ latitude: null, longitude: null });
+  const [startCoordinates, setStartCoordinates] = useState(null); // Declare startCoordinates state
+  const [endCoordinates, setEndCoordinates] = useState(null); // Declare startCoordinates state
+
+  //const currentDate = new Date().toLocaleString('en-SG', { timeZone: 'Asia/Singapore', month: '2-digit', day: '2-digit', year: 'numeric' }).replace(/\//g, '-');
+  //const currentTime = new Date().toLocaleString('en-SG', { timeZone: 'Asia/Singapore', hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }).replace(/:/g, '');
+
+  useEffect(() => {
+    if (routes.length > 0) {
+      // Apply filter on routes when routes state updates
+      filterRoutes();
+    }
+  }, [routes, filterOption]);
+  const handleFetchRoutes = () => {
+    axios.post('https://www.onemap.gov.sg/api/auth/post/getToken', {
+      email: "YONG0257@e.ntu.edu.sg",
+      password: "Sc2006sc2006"
+    })
+    .then(response => {
+      const authorizationToken = response.data.access_token;
+      
+      fetchPTData(authorizationToken, startAddress, endAddress, date, time);
+    })
+    .catch(error => {
+      console.error('Error fetching authorization token:', error);
+    });
+  };
+
+  const fetchPTData = (authorizationToken, startAddress, endAddress, date, time) => {
+    const requestOptions = {
+      headers: {
+        Authorization: authorizationToken,
+        Cookie: "_toffsuid=rB8E8GYL5xNLXUnGBoCUAg=="
+      }
+    };
+
+    const startUrl = `https://www.onemap.gov.sg/api/common/elastic/search?searchVal=${encodeURIComponent(startAddress)}&returnGeom=Y&getAddrDetails=Y`;
+    const endUrl = `https://www.onemap.gov.sg/api/common/elastic/search?searchVal=${encodeURIComponent(endAddress)}&returnGeom=Y&getAddrDetails=Y`;
+
+    const startDataPromise = axios.get(startUrl, requestOptions);
+    const endDataPromise = axios.get(endUrl, requestOptions);
+
+    Promise.all([startDataPromise, endDataPromise])
+// Inside the Promise.all block of fetchPTData function
+.then(([startResponse, endResponse]) => {
+  const startResult = startResponse.data.results[0];
+  const endResult = endResponse.data.results[0];
+
+  // Extract postal codes from start and end results
+  const startPostal = parseInt(startResult.POSTAL);
+  const endPostal = parseInt(endResult.POSTAL);
+
+  // Set start and end coordinates
+  const startCoordinates = {
+    latitude: parseFloat(startResult.LATITUDE),
+    longitude: parseFloat(startResult.LONGITUDE),
+    postal: startPostal
+  };
+  const endCoordinates = {
+    latitude: parseFloat(endResult.LATITUDE),
+    longitude: parseFloat(endResult.LONGITUDE),
+    postal: endPostal
+  };
+  
+  // Update state with coordinates
+  setStartCoordinates(startCoordinates);
+  setEndCoordinates(endCoordinates);
+
+  const routeUrl = `https://www.onemap.gov.sg/api/public/routingsvc/route?start=${startCoordinates.latitude},${startCoordinates.longitude}&end=${endCoordinates.latitude},${endCoordinates.longitude}&routeType=pt&date=08-08-2024&time=100000&mode=TRANSIT`;
+
+  return axios.get(routeUrl, requestOptions);
+})
+
+      .then(routeResponse => {
+        const result = routeResponse.data;
+
+        if (result.plan && result.plan.itineraries) {
+          // Sorting itineraries based on duration (fastest route first)
+          result.plan.itineraries.sort((a, b) => a.duration - b.duration);
+
+          // Sorting itineraries based on fare (cheapest route first)
+          result.plan.itineraries.sort((a, b) => a.fare - b.fare);
+
+          setRoutes(result.plan.itineraries);
+        } else {
+          console.log("No itineraries found.");
+          setRoutes([]);
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching routes:', error);
+      });
+  };
+  const handleFilterChange = (e) => {
+    setFilterOption(e.target.value);
+  };
+  const filterRoutes = () => {
+    if (filterOption === 'fastest') {
+      // Sort routes by duration in ascending order
+      const sortedRoutes = [...routes].sort((a, b) => a.duration - b.duration);
+      setFilteredRoutes(sortedRoutes);
+    } else if (filterOption === 'cheapest') {
+      // Sort routes by fare in descending order
+      const sortedRoutes = [...routes].sort((a, b) => a.fare - b.fare);
+      setFilteredRoutes(sortedRoutes);
+    }
+  };
+  const formatTime = (timestamp) => {
+    const date = new Date(timestamp);
+    const hours = date.getHours().toString().padStart(2, '0'); // Zero-padded hours
+    const minutes = date.getMinutes().toString().padStart(2, '0'); // Zero-padded minutes
+    const seconds = date.getSeconds().toString().padStart(2, '0'); // Zero-padded seconds
+    return `${hours}:${minutes}:${seconds}`; // Return the formatted time
+  };
 
   return (
     <div className="route-planner">
       <PromptLocationPermission setLocation={setLocation} />
       {location && <p>Current Location: Latitude {location.latitude}, Longitude {location.longitude}</p>};
       <div className="map-background">
-      <iframe
-          src={`https://www.onemap.gov.sg/minimap/minimap.html?mapStyle=Default&zoomLevel=15&latLng=${location.latitude},${location.longitude}&ewt=JTNDcCUzRSUzQ3N0cm9uZyUzRVBsZWFzZSUyMGVudGVyJTIweW91ciUyMHRleHQlMjBpbiUyMHRoZSUyMGluJTIwdGhlJTIwUG9wdXAlMjBDcmVhdG9yLiUzQyUyRnN0cm9uZyUzRSUyMCUzQ2JyJTIwJTJGJTNFJTNDYnIlMjAlMkYlM0UlM0NpbWclMjBzcmMlM0QlMjJodHRwcyUzQSUyRiUyRnd3dy5vbmVtYXAuZ292LnNnJTJGd2ViLWFzc2V0cyUyRmltYWdlcyUyRmxvZ28lMkZvbV9sb2dvXzI1Ni5wbmclMjIlMjAlMkYlM0UlMjAlM0NiciUyMCUyRiUzRSUzQ2JyJTIwJTJGJTNFJTNDYSUyMGhyZWYlM0QlMjJodHRwcyUzQSUyRiUyRnd3dy5vbmVtYXAuZ292LnNnJTJGJTIyJTNFT25lTWFpbiUzQyUyRnAlM0U=&popupWidth=200`}
-          scrolling="no"
-          frameBorder="0"
-          allowFullScreen
-        ></iframe>
+        {startCoordinates && endCoordinates ? (
+          <iframe
+            src={`https://www.onemap.gov.sg/amm/amm.html?mapStyle=Default&zoomLevel=15&marker=postalcode:${startCoordinates.postal}!colour:red!rType:TRANSIT!rDest:${startCoordinates.latitude},${startCoordinates.longitude}&marker=postalcode:${endCoordinates.postal}!colour:red!rType:TRANSIT!rDest:${endCoordinates.latitude},${endCoordinates.longitude}&popupWidth=200`}
+            scrolling="no"
+            frameBorder="0"
+            allowFullScreen
+          ></iframe>
+        ) : (
+          <iframe
+            src="https://www.onemap.gov.sg/amm/amm.html?mapStyle=Default&zoomLevel=15&popupWidth=200"
+            scrolling="no"
+            frameBorder="0"
+            allowFullScreen
+          ></iframe>
+        )}
       </div>
-      <div className="addresses">
-        <input
-          className="address-input"
-          type="text"
-          placeholder="Current Address"
-          value={currentAddress}
-          onChange={(e) => setCurrentAddress(e.target.value)}
-        />
-        <input
-          className="address-input"
-          type="text"
-          placeholder="Destination Address"
-          value={destinationAddress}
-          onChange={(e) => setDestinationAddress(e.target.value)}
-        />
+      <input
+        type="text"
+        placeholder="Start Address"
+        value={startAddress}
+        onChange={(e) => setStartAddress(e.target.value)}
+      />
+      <input
+        type="text"
+        placeholder="End Address"
+        value={endAddress}
+        onChange={(e) => setEndAddress(e.target.value)}
+      />
+     
+      <button onClick={handleFetchRoutes}>Get Routes</button>
+  
+      {/* Filter options */}
+      <div className="filter-options">
+        <label>
+          <input
+            type="radio"
+            value="fastest"
+            checked={filterOption === 'fastest'}
+            onChange={handleFilterChange}
+          />
+          Fastest Route
+        </label>
+        <label>
+          <input
+            type="radio"
+            value="cheapest"
+            checked={filterOption === 'cheapest'}
+            onChange={handleFilterChange}
+          />
+          Cheapest Route
+        </label>
       </div>
-      <div className="route-info">
-        <div className="time-info">
-          <div className="time-info-container">
-            <label>Depart Now</label>
-            <label>{new Date().toLocaleString() + ""}</label>
+  
+      <div className="routes">
+        {filteredRoutes.map((route, index) => (
+          <div key={index} className="itinerary">
+            <p><strong>Route {index + 1}</strong></p>
+            <p><strong>Duration (minutes):</strong> {Math.round(route.duration / 60)}</p>
+            <p><strong>Fare:</strong> {route.fare}</p>
+            {/* Display legs information */}
+            <div className="legs">
+              {route.legs.map((leg, legIndex) => (
+                <div key={legIndex}>
+                  <p><strong>Leg {legIndex + 1}:</strong></p>
+                  <p><strong>Mode:</strong> {leg.mode}</p>
+                  <p><strong>Bus Number / MRT Line:</strong> {leg.route || "N/A"}</p>
+                  <p><strong>From:</strong> {leg.from.name}</p>
+                  {leg.mode === "BUS" && (
+                    <p><strong>Next Bus Arrival Time:</strong> {formatTime(leg.from.arrival)}</p>
+                  )}
+                  <p><strong>To:</strong> {leg.to.name}</p>
+                </div>
+              ))}
             </div>
-        </div>
-        <div className="routes">
-          {/* This section would dynamically list routes */}
-          <div className="route">
-            <div>Location Name 1</div>
-            <div>1 hr 0 min - 2 hr 0 min</div>
-            <div>$2 - $43</div>
-            <button>Routes</button>
           </div>
-          {/* Repeat for other routes */}
-        </div>
-      </div>
-      <div className="travel-mode">
-        <div className="travel-mode-container">
-          <div>
-            <h2>Routes</h2>
-            <button className="travel-filter">Filter</button>
-          </div>
-            <div className="bus-container">
-              <label>Bus</label>
-              <label>60 km</label>
-              <label>1 hour 69min</label>
-              <label>$2 - $4</label>
-            </div>
-            <div className="mrt-container">
-              <label>Mrt</label>
-              <label>60 km</label>
-              <label>1 hour 69min</label>
-              <label>$2 - $4</label>
-            </div>
-            <div className="taxi-container">
-              <label>Taxi</label>
-              <label>60 km</label>
-              <label>1 hour 69min</label>
-              <label>$2 - $4</label>
-            </div>
-        </div>
-      </div>
-      <div className="filter-mode">
-        <div className="filter-mode-container">
-          <ul>
-            <li><input type="checkbox"/>Shortest Route</li>
-            <li><input type="checkbox"/>Cheapest Route</li>
-            <li><input type="checkbox"/>Fewer Transfer</li>
-          </ul>
-        </div>
+        ))}
       </div>
     </div>
   );
+  
 };
 
 export default RoutePlanner;
