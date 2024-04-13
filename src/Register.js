@@ -50,7 +50,7 @@ const Register = () => {
       });
 
       console.log('User registered successfully');
-      window.location.href = "/TripHistory";
+      window.location.href = "/";
     } catch (error) {
       console.error('Error registering user:', error);
     }
@@ -68,6 +68,7 @@ const Register = () => {
           value={formData.firstName}
           onChange={handleChange} 
           placeholder='John'
+          required
         />
 
         <label htmlFor="lastName">Last Name</label>
@@ -78,6 +79,7 @@ const Register = () => {
           value={formData.lastName}
           onChange={handleChange}
           placeholder='Doe'
+          required
         />
 
         <label htmlFor="email">Email</label>
@@ -87,6 +89,7 @@ const Register = () => {
           type="email"
           value={formData.email}
           onChange={handleChange}
+          required
         />
 
         <label htmlFor="password">Password</label>
@@ -96,6 +99,7 @@ const Register = () => {
           type="password"
           value={formData.password}
           onChange={handleChange}
+          required
         />
 
         <label htmlFor="confirmPassword">Confirm Password</label>
@@ -105,6 +109,7 @@ const Register = () => {
           type="password"
           value={formData.confirmPassword}
           onChange={handleChange}
+          required
         />
 
         <button type="submit">Register</button>

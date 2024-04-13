@@ -1,16 +1,28 @@
 import React, { useState } from 'react';
 // Make sure to import your CSS file
 import './index.css';
+import PromptLocationPermission from './promptLocationPermission.js';
+import LocationComponent from './promptLocationPermission.js';
 
 const RoutePlanner = () => {
   const [currentAddress, setCurrentAddress] = useState('');
   const [destinationAddress, setDestinationAddress] = useState('');
   const [departTime, setDepartTime] = useState('23:59');
-  const [arrivalTime, setArrivalTime] = useState('00:00');
+  const [depoartDate, setDepartDate] = useState('new Date().toLocaleString() + ""');
+  const [location, setLocation] = useState({ latitude: null, longitude: null });
 
   return (
     <div className="route-planner">
-      <div className="map-background"></div>
+      <PromptLocationPermission setLocation={setLocation} />
+      {location && <p>Current Location: Latitude {location.latitude}, Longitude {location.longitude}</p>};
+      <div className="map-background">
+      <iframe
+          src={`https://www.onemap.gov.sg/minimap/minimap.html?mapStyle=Default&zoomLevel=15&latLng=${location.latitude},${location.longitude}&ewt=JTNDcCUzRSUzQ3N0cm9uZyUzRVBsZWFzZSUyMGVudGVyJTIweW91ciUyMHRleHQlMjBpbiUyMHRoZSUyMGluJTIwdGhlJTIwUG9wdXAlMjBDcmVhdG9yLiUzQyUyRnN0cm9uZyUzRSUyMCUzQ2JyJTIwJTJGJTNFJTNDYnIlMjAlMkYlM0UlM0NpbWclMjBzcmMlM0QlMjJodHRwcyUzQSUyRiUyRnd3dy5vbmVtYXAuZ292LnNnJTJGd2ViLWFzc2V0cyUyRmltYWdlcyUyRmxvZ28lMkZvbV9sb2dvXzI1Ni5wbmclMjIlMjAlMkYlM0UlMjAlM0NiciUyMCUyRiUzRSUzQ2JyJTIwJTJGJTNFJTNDYSUyMGhyZWYlM0QlMjJodHRwcyUzQSUyRiUyRnd3dy5vbmVtYXAuZ292LnNnJTJGJTIyJTNFT25lTWFpbiUzQyUyRnAlM0U=&popupWidth=200`}
+          scrolling="no"
+          frameBorder="0"
+          allowFullScreen
+        ></iframe>
+      </div>
       <div className="addresses">
         <input
           className="address-input"
@@ -30,18 +42,8 @@ const RoutePlanner = () => {
       <div className="route-info">
         <div className="time-info">
           <div className="time-info-container">
-            <label>Depart Time</label>
-            <input
-              type="time"
-              value={departTime}
-              onChange={(e) => setDepartTime(e.target.value)}
-            />
-            <label>Arrival Time</label>
-            <input
-              type="time"
-              value={arrivalTime}
-              onChange={(e) => setArrivalTime(e.target.value)}
-            />
+            <label>Depart Now</label>
+            <label>{new Date().toLocaleString() + ""}</label>
             </div>
         </div>
         <div className="routes">
