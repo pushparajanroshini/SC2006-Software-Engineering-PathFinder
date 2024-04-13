@@ -9,12 +9,19 @@ const RoutePlanner = () => {
   const [destinationAddress, setDestinationAddress] = useState('');
   const [departTime, setDepartTime] = useState('23:59');
   const [depoartDate, setDepartDate] = useState('new Date().toLocaleString() + ""');
+  const [location, setLocation] = useState({ latitude: null, longitude: null });
 
   return (
     <div className="route-planner">
-      <PromptLocationPermission/>
+      <PromptLocationPermission setLocation={setLocation} />
+      {location && <p>Current Location: Latitude {location.latitude}, Longitude {location.longitude}</p>};
       <div className="map-background">
-      <iframe src="https://www.onemap.gov.sg/amm/amm.html?mapStyle=Default&zoomLevel=15&marker=postalcode:569816!colour:red&marker=postalcode:659085!colour:red!rType:TRANSIT!rDest:1.38111875111583,103.849736066442&popupWidth=200" height="450" width="450" scrolling="no" frameborder="0" allowfullscreen="allowfullscreen"></iframe>
+      <iframe
+          src={`https://www.onemap.gov.sg/minimap/minimap.html?mapStyle=Default&zoomLevel=15&latLng=${location.latitude},${location.longitude}&ewt=JTNDcCUzRSUzQ3N0cm9uZyUzRVBsZWFzZSUyMGVudGVyJTIweW91ciUyMHRleHQlMjBpbiUyMHRoZSUyMGluJTIwdGhlJTIwUG9wdXAlMjBDcmVhdG9yLiUzQyUyRnN0cm9uZyUzRSUyMCUzQ2JyJTIwJTJGJTNFJTNDYnIlMjAlMkYlM0UlM0NpbWclMjBzcmMlM0QlMjJodHRwcyUzQSUyRiUyRnd3dy5vbmVtYXAuZ292LnNnJTJGd2ViLWFzc2V0cyUyRmltYWdlcyUyRmxvZ28lMkZvbV9sb2dvXzI1Ni5wbmclMjIlMjAlMkYlM0UlMjAlM0NiciUyMCUyRiUzRSUzQ2JyJTIwJTJGJTNFJTNDYSUyMGhyZWYlM0QlMjJodHRwcyUzQSUyRiUyRnd3dy5vbmVtYXAuZ292LnNnJTJGJTIyJTNFT25lTWFpbiUzQyUyRnAlM0U=&popupWidth=200`}
+          scrolling="no"
+          frameBorder="0"
+          allowFullScreen
+        ></iframe>
       </div>
       <div className="addresses">
         <input

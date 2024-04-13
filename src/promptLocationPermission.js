@@ -1,32 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 
-function LocationComponent() {
-    const [location, setLocation] = useState(null);
-    const [error, setError] = useState(null);
-
+function LocationComponent({ setLocation }) {
     useEffect(() => {
         if (!navigator.geolocation) {
-            setError('Geolocation is not supported by your browser.');
+            console.log("Geolocation is not supported by your browser.");
             return;
         }
 
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 const { latitude, longitude } = position.coords;
-                setLocation(`Latitude: ${latitude}, Longitude: ${longitude}`);
+                setLocation({ latitude, longitude });
             },
             () => {
-                setError('Unable to retrieve your location.');
+                console.log("Error retrieving location.");
             }
         );
-    }, []); // Empty dependency array means this effect runs once on mount
+    }, [setLocation]); // Include setLocation in the dependency array to ensure stability
 
-    return (
-        <div>
-            {location && <p>Location: {location}</p>}
-            {error && <p>Error: {error}</p>}
-        </div>
-    );
+    return null;  // This component doesn't need to render anything itself
 }
 
 export default LocationComponent;
