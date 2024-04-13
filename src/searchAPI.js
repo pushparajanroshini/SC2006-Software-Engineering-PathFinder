@@ -9,25 +9,32 @@
 
 
 const axios = require('axios');
-const cookie = "_toffsuid=rB8E8GYL5xNLXUnGBoCUAg==";
+//const cookie = "_toffsuid=rB8E8GYL5xNLXUnGBoCUAg==";
 
+//const data = {
+ // email: "sassyrubiesvlog@gmail.com",
+  //password: "3iWTHpRs@gR3fRJ"
+//};
+const cookie = "_toffsuid=rB8E8GYL5xNLXUnGBoCUAg==";
 const data = {
-  email: "pushparajanroshini.rcy@gmail.com",
-  password: "helloiamusingonemap9$"
+ email: "YONG0257@e.ntu.edu.sg",
+ password: "Sc2006sc2006"
 };
 
 
-let authorizationToken; // Declare the variable to store the token
+let authorizationToken //= eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwY2YyM2M0ZDgzYzJmMjhkOTViNzIxODMxN2I3NmYzYSIsImlzcyI6Imh0dHA6Ly9pbnRlcm5hbC1hbGItb20tcHJkZXppdC1pdC0xMjIzNjk4OTkyLmFwLXNvdXRoZWFzdC0xLmVsYi5hbWF6b25hd3MuY29tL2FwaS92Mi91c2VyL3Bhc3N3b3JkIiwiaWF0IjoxNzEzMDEwMzE1LCJleHAiOjE3MTMyNjk1MTUsIm5iZiI6MTcxMzAxMDMxNSwianRpIjoiMzhKMnlTSm5oa0VBbTZoRSIsInVzZXJfaWQiOjMyNDIsImZvcmV2ZXIiOmZhbHNlfQ.W5m2vot6YMz0AEiDA8VnqDGm39SBhCwuGt93ErSDzY0; // Declare the variable to store the token
 
+//authorizationToken=
+//eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwY2YyM2M0ZDgzYzJmMjhkOTViNzIxODMxN2I3NmYzYSIsImlzcyI6Imh0dHA6Ly9pbnRlcm5hbC1hbGItb20tcHJkZXppdC1pdC0xMjIzNjk4OTkyLmFwLXNvdXRoZWFzdC0xLmVsYi5hbWF6b25hd3MuY29tL2FwaS92Mi91c2VyL3Bhc3N3b3JkIiwiaWF0IjoxNzEzMDEwMzE1LCJleHAiOjE3MTMyNjk1MTUsIm5iZiI6MTcxMzAxMDMxNSwianRpIjoiMzhKMnlTSm5oa0VBbTZoRSIsInVzZXJfaWQiOjMyNDIsImZvcmV2ZXIiOmZhbHNlfQ.W5m2vot6YMz0AEiDA8VnqDGm39SBhCwuGt93ErSDzY0
 axios.post('https://www.onemap.gov.sg/api/auth/post/getToken', data)
   .then(response => {
-    // Extract the token from the response data
+     //Extract the token from the response data
     authorizationToken = response.data.access_token;
     //console.log('Authorization Token:', authorizationToken); // Log the token
   })
   .catch(error => {
-    // Handle error here
-    console.error('Error:', error);
+     //Handle error here
+   console.error('Error:', error);
   });
 
 
@@ -149,13 +156,13 @@ function calculateTaxiFare(distance, time, isPublicHoliday) {
     // Check if the distance is within the range of 1km to 10km
     if (distance <= 10) {
         // Calculate fare for every 400 meters within the range
-        distanceFare = Math.ceil(distance * 1000 / 400) * 0.25; // 25 cents every 400m
+        distanceUnitFare = Math.ceil(distance * 1000 / 400) * 0.25; // 25 cents every 400m
     } else {
         // Calculate fare for the first 10km
-        distanceFare = Math.ceil(10 * 1000 / 400) * 0.25; // 25 cents every 400m
+        distanceUnitFare = Math.ceil(10 * 1000 / 400) * 0.25; // 25 cents every 400m
 
         // Calculate fare for the distance beyond 10km
-        distanceFare += Math.ceil((distance - 10) * 1000 / 350) * 0.25; // 25 cents every 350m
+        distanceUnitFare += Math.ceil((distance - 10) * 1000 / 350) * 0.25; // 25 cents every 350m
     }
 
 
@@ -182,7 +189,7 @@ function calculateTaxiFare(distance, time, isPublicHoliday) {
     }
 
     // Calculate total fare
-    const totalFare = (baseFare + distanceFare) * fareMultiplier;
+    const totalFare = (baseFare + distanceUnitFare) * fareMultiplier;
 
     return totalFare;
 }
@@ -240,10 +247,10 @@ function fetchData(authorizationToken, cookie, startAddress, endAddress, routeTy
             redirect: "follow"
          };
 
-    fetch("http://datamall2.mytransport.sg/ltaodataservice/Taxi-Availability", taxiRequestOptions)
+    return fetch("http://datamall2.mytransport.sg/ltaodataservice/Taxi-Availability", taxiRequestOptions)
         .then((response) => {
             if (!response.ok){
-                throw new Error('HTTP error! Status : ${response.status}');
+                throw new Error('HTTP error! Status: ${response.status}');
             }
             return response.json();
         })
@@ -300,7 +307,9 @@ function fetchData(authorizationToken, cookie, startAddress, endAddress, routeTy
                 .then(response => response.json())
                 .then(result => {
                 // Extract main route summary
-                    const mainRouteSummary = result.route_summary;
+                    console.log("Main Route Summary:", result.route_summary);
+                    let mainRouteSummary = result.route_summary;
+                    console.log("Main Route Summary:", mainRouteSummary);
 
                     // Initialize variables to store shortest distance and fastest time
                     let shortestDistance = mainRouteSummary.total_distance;
@@ -378,9 +387,7 @@ function fetchData(authorizationToken, cookie, startAddress, endAddress, routeTy
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
 const readline = require('readline');
-
 const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
