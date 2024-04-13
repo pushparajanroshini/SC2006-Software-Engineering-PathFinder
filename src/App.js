@@ -49,7 +49,7 @@ const App = () => {
 
 const MainPage = () => {
   return (
-    <iframe src="https://www.onemap.gov.sg/minimap/minimap.html?mapStyle=Default&zoomLevel=15&latLng=1.38111875111583,103.849736066713&ewt=JTNDcCUzRSUzQ3N0cm9uZyUzRVBsZWFzZSUyMGVudGVyJTIweW91ciUyMHRleHQlMjBpbiUyMHRoZSUyMGluJTIwdGhlJTIwUG9wdXAlMjBDcmVhdG9yLiUzQyUyRnN0cm9uZyUzRSUyMCUzQ2JyJTIwJTJGJTNFJTNDYnIlMjAlMkYlM0UlM0NpbWclMjBzcmMlM0QlMjJodHRwcyUzQSUyRiUyRnd3dy5vbmVtYXAuZ292LnNnJTJGd2ViLWFzc2V0cyUyRmltYWdlcyUyRmxvZ28lMkZvbV9sb2dvXzI1Ni5wbmclMjIlMjAlMkYlM0UlMjAlM0NiciUyMCUyRiUzRSUzQ2JyJTIwJTJGJTNFJTNDYSUyMGhyZWYlM0QlMjJodHRwcyUzQSUyRiUyRnd3dy5vbmVtYXAuZ292LnNnJTJGJTIyJTNFT25lTWFwJTNDJTJGYSUzRSUzQyUyRnAlM0U=&popupWidth=200&showPopup=true" height="480" width="480" scrolling="no" frameborder="0" allowfullscreen="allowfullscreen"></iframe>
+    <Main />
   );
 };
 const About = () => {

@@ -6,11 +6,13 @@ const RoutePlanner = () => {
   const [currentAddress, setCurrentAddress] = useState('');
   const [destinationAddress, setDestinationAddress] = useState('');
   const [departTime, setDepartTime] = useState('23:59');
-  const [arrivalTime, setArrivalTime] = useState('00:00');
+  const [depoartDate, setDepartDate] = useState('new Date().toLocaleString() + ""');
 
   return (
     <div className="route-planner">
-      <div className="map-background"></div>
+      <div className="map-background">
+          <iframe src="https://www.onemap.gov.sg/amm/amm.html?mapStyle=Default&zoomLevel=15&popupWidth=200" height="450" width="450" scrolling="no" frameborder="0" allowfullscreen="allowfullscreen"></iframe>
+      </div>
       <div className="addresses">
         <input
           className="address-input"
@@ -30,18 +32,8 @@ const RoutePlanner = () => {
       <div className="route-info">
         <div className="time-info">
           <div className="time-info-container">
-            <label>Depart Time</label>
-            <input
-              type="time"
-              value={departTime}
-              onChange={(e) => setDepartTime(e.target.value)}
-            />
-            <label>Arrival Time</label>
-            <input
-              type="time"
-              value={arrivalTime}
-              onChange={(e) => setArrivalTime(e.target.value)}
-            />
+            <label>Depart Now</label>
+            <label>{new Date().toLocaleString() + ""}</label>
             </div>
         </div>
         <div className="routes">
