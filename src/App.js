@@ -49,7 +49,7 @@ const App = () => {
 
 const MainPage = () => {
   return (
-    <Main />
+    <Main/>
   );
 };
 const About = () => {
@@ -81,8 +81,7 @@ const ManageWalletBalance = () => {
 
 const userLogin = () => {
   return (
-    <Login />
-    
+    <Login/>
   );
 };
 

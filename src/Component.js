@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 // Make sure to import your CSS file
 import './index.css';
+import PromptLocationPermission from './promptLocationPermission.js';
+import LocationComponent from './promptLocationPermission.js';
 
 const RoutePlanner = () => {
   const [currentAddress, setCurrentAddress] = useState('');
@@ -10,8 +12,9 @@ const RoutePlanner = () => {
 
   return (
     <div className="route-planner">
+      <PromptLocationPermission/>
       <div className="map-background">
-          <iframe src="https://www.onemap.gov.sg/amm/amm.html?mapStyle=Default&zoomLevel=15&popupWidth=200" height="450" width="450" scrolling="no" frameborder="0" allowfullscreen="allowfullscreen"></iframe>
+      <iframe src="https://www.onemap.gov.sg/amm/amm.html?mapStyle=Default&zoomLevel=15&marker=postalcode:569816!colour:red&marker=postalcode:659085!colour:red!rType:TRANSIT!rDest:1.38111875111583,103.849736066442&popupWidth=200" height="450" width="450" scrolling="no" frameborder="0" allowfullscreen="allowfullscreen"></iframe>
       </div>
       <div className="addresses">
         <input
