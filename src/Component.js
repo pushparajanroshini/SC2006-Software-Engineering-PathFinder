@@ -15,6 +15,9 @@ const RoutePlanner = () => {
   const [location, setLocation] = useState({ latitude: null, longitude: null });
   const [startCoordinates, setStartCoordinates] = useState(null); // Declare startCoordinates state
   const [endCoordinates, setEndCoordinates] = useState(null); // Declare startCoordinates state
+  const [authorizationToken, setAuthorizationToken] = useState('');
+  const [cookie, setCookie] = useState('');
+  const [currentAddress, setCurrentAddress] = useState(null); // State for building name
 
   //const currentDate = new Date().toLocaleString('en-SG', { timeZone: 'Asia/Singapore', month: '2-digit', day: '2-digit', year: 'numeric' }).replace(/\//g, '-');
   //const currentTime = new Date().toLocaleString('en-SG', { timeZone: 'Asia/Singapore', hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }).replace(/:/g, '');
@@ -25,6 +28,63 @@ const RoutePlanner = () => {
       filterRoutes();
     }
   }, [routes, filterOption]);
+
+  useEffect(() => {
+    if (location.latitude !== null && location.longitude !== null) {
+      fetchLocationDetails(location.latitude, location.longitude);
+    }
+  }, [location]);
+  
+  useEffect(() => {
+    if (currentAddress) {
+      setStartAddress(currentAddress);
+    }
+  }, [currentAddress]);
+  
+  
+//Fetch location details
+const fetchLocationDetails = (latitude, longitude) => {
+  axios.post('https://www.onemap.gov.sg/api/auth/post/getToken', {
+    email: "YONG0257@e.ntu.edu.sg",
+    password: "Sc2006sc2006"
+  })
+  .then(response => {
+    const authorizationToken = response.data.access_token;
+
+    const myHeaders = new Headers();
+    myHeaders.append("Authorization", authorizationToken); // Use the fetched authorization token
+    myHeaders.append("Cookie", "_toffsuid=rB8E8GYadhQiED8MBsoLAg==");
+
+    const requestOptions = {
+      method: "GET",
+      headers: myHeaders,
+      redirect: "follow"
+    };
+
+    fetch(`https://www.onemap.gov.sg/api/public/revgeocode?location=${latitude},${longitude}&buffer=50&addressType=All&otherFeatures=N`, requestOptions)
+    .then((response) => response.json()) // Parse response as JSON
+    .then((result) => {
+      if (result.GeocodeInfo && result.GeocodeInfo.length > 0) { // Check if GeocodeInfo exists and is not empty
+        const firstEntry = result.GeocodeInfo[0];
+        const buildingName = firstEntry.BUILDINGNAME !== 'NIL' ? firstEntry.BUILDINGNAME : '';
+        const block = firstEntry.BLOCK !== 'NIL' ? firstEntry.BLOCK : '';
+        const road = firstEntry.ROAD !== 'NIL' ? firstEntry.ROAD : '';
+        const currentAddress = [buildingName, block, road].join(' ').trim();
+        setCurrentAddress(currentAddress); // Update the currentAddress state
+        setStartAddress(currentAddress); // Update the startAddress state
+      } else {
+        console.error('GeocodeInfo is empty or undefined.');
+      }
+    })
+    .catch((error) => console.error(error));
+  })
+  .catch(error => {
+    console.error('Error fetching authorization token:', error);
+  });
+};
+
+
+
   const handleFetchRoutes = () => {
     axios.post('https://www.onemap.gov.sg/api/auth/post/getToken', {
       email: "YONG0257@e.ntu.edu.sg",
@@ -34,11 +94,13 @@ const RoutePlanner = () => {
       const authorizationToken = response.data.access_token;
       
       fetchPTData(authorizationToken, startAddress, endAddress, date, time);
+
     })
     .catch(error => {
       console.error('Error fetching authorization token:', error);
     });
   };
+  //FetchPTData
 
   const fetchPTData = (authorizationToken, startAddress, endAddress, date, time) => {
     const requestOptions = {
@@ -80,7 +142,7 @@ const RoutePlanner = () => {
   setStartCoordinates(startCoordinates);
   setEndCoordinates(endCoordinates);
 
-  const routeUrl = `https://www.onemap.gov.sg/api/public/routingsvc/route?start=${startCoordinates.latitude},${startCoordinates.longitude}&end=${endCoordinates.latitude},${endCoordinates.longitude}&routeType=pt&date=08-08-2024&time=100000&mode=TRANSIT`;
+  const routeUrl = `https://www.onemap.gov.sg/api/public/routingsvc/route?start=${startCoordinates.latitude},${startCoordinates.longitude}&end=${endCoordinates.latitude},${endCoordinates.longitude}&routeType=pt&date=08-08-2024&time=100000&mode=TRANSIT&numItineraries=2`;
 
   return axios.get(routeUrl, requestOptions);
 })
@@ -127,10 +189,13 @@ const RoutePlanner = () => {
     return `${hours}:${minutes}:${seconds}`; // Return the formatted time
   };
 
+
   return (
     <div className="route-planner">
       <PromptLocationPermission setLocation={setLocation} />
-      {location && <p>Current Location: Latitude {location.latitude}, Longitude {location.longitude}</p>};
+      {location && <p>Current Location: {currentAddress}</p>};
+      
+      
       <div className="map-background">
         {startCoordinates && endCoordinates ? (
           <iframe
@@ -151,7 +216,7 @@ const RoutePlanner = () => {
       <input
         type="text"
         placeholder="Start Address"
-        value={startAddress}
+        value={currentAddress}
         onChange={(e) => setStartAddress(e.target.value)}
       />
       <input
