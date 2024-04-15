@@ -15,6 +15,13 @@ const RoutePlanner = () => {
   const [location, setLocation] = useState({ latitude: null, longitude: null });
   const [startCoordinates, setStartCoordinates] = useState(null); // Declare startCoordinates state
   const [endCoordinates, setEndCoordinates] = useState(null); // Declare startCoordinates state
+  const [authorizationToken, setAuthorizationToken] = useState('');
+  const [cookie, setCookie] = useState('');
+  const [currentAddress, setCurrentAddress] = useState(null); // State for building name
+  const [showRoutes, setShowRoutes] = useState(false); // State to control route box visibility
+  const [mapMarkerUrl, setMapMarkerUrl] = useState(''); // URL for map with marker
+
+
 
   //const currentDate = new Date().toLocaleString('en-SG', { timeZone: 'Asia/Singapore', month: '2-digit', day: '2-digit', year: 'numeric' }).replace(/\//g, '-');
   //const currentTime = new Date().toLocaleString('en-SG', { timeZone: 'Asia/Singapore', hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }).replace(/:/g, '');
@@ -25,6 +32,63 @@ const RoutePlanner = () => {
       filterRoutes();
     }
   }, [routes, filterOption]);
+
+  useEffect(() => {
+    if (location.latitude !== null && location.longitude !== null) {
+      fetchLocationDetails(location.latitude, location.longitude);
+    }
+  }, [location]);
+  
+  useEffect(() => {
+    if (currentAddress) {
+      setStartAddress(currentAddress);
+    }
+  }, [currentAddress]);
+  
+  
+//Fetch location details
+const fetchLocationDetails = (latitude, longitude) => {
+  axios.post('https://www.onemap.gov.sg/api/auth/post/getToken', {
+    email: "YONG0257@e.ntu.edu.sg",
+    password: "Sc2006sc2006"
+  })
+  .then(response => {
+    const authorizationToken = response.data.access_token;
+
+    const myHeaders = new Headers();
+    myHeaders.append("Authorization", authorizationToken); // Use the fetched authorization token
+    myHeaders.append("Cookie", "_toffsuid=rB8E8GYadhQiED8MBsoLAg==");
+
+    const requestOptions = {
+      method: "GET",
+      headers: myHeaders,
+      redirect: "follow"
+    };
+
+    fetch(`https://www.onemap.gov.sg/api/public/revgeocode?location=${latitude},${longitude}&buffer=50&addressType=All&otherFeatures=N`, requestOptions)
+    .then((response) => response.json()) // Parse response as JSON
+    .then((result) => {
+      if (result.GeocodeInfo && result.GeocodeInfo.length > 0) { // Check if GeocodeInfo exists and is not empty
+        const firstEntry = result.GeocodeInfo[0];
+        const buildingName = firstEntry.BUILDINGNAME !== 'NIL' ? firstEntry.BUILDINGNAME : '';
+        const block = firstEntry.BLOCK !== 'NIL' ? firstEntry.BLOCK : '';
+        const road = firstEntry.ROAD !== 'NIL' ? firstEntry.ROAD : '';
+        const currentAddress = [buildingName, block, road].join(' ').trim();
+        setCurrentAddress(currentAddress); // Update the currentAddress state
+        setStartAddress(currentAddress); // Update the startAddress state
+      } else {
+        console.error('GeocodeInfo is empty or undefined.');
+      }
+    })
+    .catch((error) => console.error(error));
+  })
+  .catch(error => {
+    console.error('Error fetching authorization token:', error);
+  });
+};
+
+
+
   const handleFetchRoutes = () => {
 
     // // prompt user for confirmation
@@ -41,11 +105,13 @@ const RoutePlanner = () => {
       const authorizationToken = response.data.access_token;
       
       fetchPTData(authorizationToken, startAddress, endAddress, date, time);
+
     })
     .catch(error => {
       console.error('Error fetching authorization token:', error);
     });
   };
+  //FetchPTData
 
   const fetchPTData = (authorizationToken, startAddress, endAddress, date, time) => {
     const requestOptions = {
@@ -87,7 +153,7 @@ const RoutePlanner = () => {
   setStartCoordinates(startCoordinates);
   setEndCoordinates(endCoordinates);
 
-  const routeUrl = `https://www.onemap.gov.sg/api/public/routingsvc/route?start=${startCoordinates.latitude},${startCoordinates.longitude}&end=${endCoordinates.latitude},${endCoordinates.longitude}&routeType=pt&date=08-08-2024&time=100000&mode=TRANSIT`;
+  const routeUrl = `https://www.onemap.gov.sg/api/public/routingsvc/route?start=${startCoordinates.latitude},${startCoordinates.longitude}&end=${endCoordinates.latitude},${endCoordinates.longitude}&routeType=pt&date=08-08-2024&time=100000&mode=TRANSIT&numItineraries=2`;
 
   return axios.get(routeUrl, requestOptions);
 })
@@ -134,10 +200,13 @@ const RoutePlanner = () => {
     return `${hours}:${minutes}:${seconds}`; // Return the formatted time
   };
 
-  return (
-    <div className="route-planner">
-      <PromptLocationPermission setLocation={setLocation} />
-      {location && <p>Current Location: Latitude {location.latitude}, Longitude {location.longitude}</p>};
+
+    return (
+  <div className="route-planner">
+    <PromptLocationPermission setLocation={setLocation} />
+    {location && <p>Current Location: {currentAddress}</p>}
+
+    <div className="map-container" style={{ flex: 1 }}>
       <div className="map-background">
         {startCoordinates && endCoordinates ? (
           <iframe
@@ -145,6 +214,7 @@ const RoutePlanner = () => {
             scrolling="no"
             frameBorder="0"
             allowFullScreen
+            style={{ width: '100%', height: '800px' }}
           ></iframe>
         ) : (
           <iframe
@@ -152,24 +222,38 @@ const RoutePlanner = () => {
             scrolling="no"
             frameBorder="0"
             allowFullScreen
+            style={{ width: '100%', height: '800px' }}
           ></iframe>
         )}
       </div>
-      <input
-        type="text"
-        placeholder="Start Address"
-        value={startAddress}
-        onChange={(e) => setStartAddress(e.target.value)}
-      />
-      <input
-        type="text"
-        placeholder="End Address"
-        value={endAddress}
-        onChange={(e) => setEndAddress(e.target.value)}
-      />
-     
-      <button onClick={handleFetchRoutes}>Get Routes</button>
+    </div>
   
+    <div className='input-and-map-container' style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <div className='address-inputs' style={{ width: '300px' }}>
+        <div>
+          <label htmlFor="startAddress">Start Address</label>
+          <input
+            id="startAddress"
+            type="text"
+            placeholder="Start Address"
+            value={currentAddress}
+            onChange={(e) => setStartAddress(e.target.value)}
+          />
+        </div>
+        <div>
+          <label htmlFor='endAddress'>End Destination</label>
+          <input
+            type="text"
+            placeholder="End Address"
+            value={endAddress}
+            onChange={(e) => setEndAddress(e.target.value)}
+          />
+        </div>
+        <button onClick={handleFetchRoutes} style={{ margin: '10px auto', display: 'block' }}>
+          Get routes
+        </button>
+      </div>
+
       {/* Filter options */}
       <div className="filter-options">
         <label>
@@ -181,6 +265,7 @@ const RoutePlanner = () => {
           />
           Fastest Route
         </label>
+        <br />
         <label>
           <input
             type="radio"
@@ -191,34 +276,34 @@ const RoutePlanner = () => {
           Cheapest Route
         </label>
       </div>
-  
-      <div className="routes">
-        {filteredRoutes.map((route, index) => (
-          <div key={index} className="itinerary">
-            <p><strong>Route {index + 1}</strong></p>
-            <p><strong>Duration (minutes):</strong> {Math.round(route.duration / 60)}</p>
-            <p><strong>Fare:</strong> {route.fare}</p>
-            {/* Display legs information */}
-            <div className="legs">
-              {route.legs.map((leg, legIndex) => (
-                <div key={legIndex}>
-                  <p><strong>Leg {legIndex + 1}:</strong></p>
-                  <p><strong>Mode:</strong> {leg.mode}</p>
-                  <p><strong>Bus Number / MRT Line:</strong> {leg.route || "N/A"}</p>
-                  <p><strong>From:</strong> {leg.from.name}</p>
-                  {leg.mode === "BUS" && (
-                    <p><strong>Next Bus Arrival Time:</strong> {formatTime(leg.from.arrival)}</p>
-                  )}
-                  <p><strong>To:</strong> {leg.to.name}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
     </div>
-  );
-  
-};
 
+    <div className="routes" style={{ borderRadius: '10px', backgroundColor: '#f0f0f0', padding: '10px', marginTop: '20px' }}>
+      {filteredRoutes.map((route, index) => (
+        <div key={index} className="itinerary">
+          <p><strong>Route {index + 1}</strong></p>
+          <p><strong>Duration (minutes):</strong> {Math.round(route.duration / 60)}</p>
+          <p><strong>Fare:</strong> {route.fare}</p>
+          {/* Display legs information */}
+          <div className="legs">
+            {route.legs.map((leg, legIndex) => (
+              <div key={legIndex}>
+                <p><strong>Leg {legIndex + 1}:</strong></p>
+                <p><strong>Mode:</strong> {leg.mode}</p>
+                <p><strong>Bus Number / MRT Line:</strong> {leg.route || "N/A"}</p>
+                <p><strong>From:</strong> {leg.from.name}</p>
+                {leg.mode === "BUS" && (
+                  <p><strong>Next Bus Arrival Time:</strong> {formatTime(leg.from.arrival)}</p>
+                )}
+                <p><strong>To:</strong> {leg.to.name}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+};
 export default RoutePlanner;
+
