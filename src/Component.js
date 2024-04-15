@@ -281,14 +281,16 @@ const fetchLocationDetails = (latitude, longitude) => {
     <div className="routes" style={{ borderRadius: '10px', backgroundColor: '#f0f0f0', padding: '10px', marginTop: '20px' }}>
       {filteredRoutes.map((route, index) => (
         <div key={index} className="itinerary">
-          <h2>Transit</h2>
+          <h1>Transit</h1>
           <p><strong>Route {index + 1}</strong></p>
           <p><strong>Duration (minutes):</strong> {Math.round(route.duration / 60)}</p>
           <p><strong>Fare:</strong> {route.fare}</p>
-          <button>Select</button>
+          {/* ADD THE FUNCTION TO SUBMIT DATA INTO FIREBASE HERE */}
+          <button>Select</button> 
           <br/><br/>
           {/* Display legs information */}
           <div className="legs">
+            <hr></hr>
             {route.legs.map((leg, legIndex) => (
               <div key={legIndex}>
                 <p><strong>Leg {legIndex + 1}:</strong></p>
@@ -299,6 +301,7 @@ const fetchLocationDetails = (latitude, longitude) => {
                   <p><strong>Next Bus Arrival Time:</strong> {formatTime(leg.from.arrival)}</p>
                 )}
                 <p><strong>To:</strong> {leg.to.name}</p>
+                <hr></hr>
               </div>
             ))}
           </div>

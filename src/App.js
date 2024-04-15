@@ -11,7 +11,7 @@ import {
 
 
 import './App.css';
-import Header from './Header';
+import Header from './header';
 import Main from './Component';
 import ManageWallet from './Wallet';
 import Login from './Login';
