@@ -18,6 +18,10 @@ const RoutePlanner = () => {
   const [authorizationToken, setAuthorizationToken] = useState('');
   const [cookie, setCookie] = useState('');
   const [currentAddress, setCurrentAddress] = useState(null); // State for building name
+  const [showRoutes, setShowRoutes] = useState(false); // State to control route box visibility
+  const [mapMarkerUrl, setMapMarkerUrl] = useState(''); // URL for map with marker
+
+
 
   //const currentDate = new Date().toLocaleString('en-SG', { timeZone: 'Asia/Singapore', month: '2-digit', day: '2-digit', year: 'numeric' }).replace(/\//g, '-');
   //const currentTime = new Date().toLocaleString('en-SG', { timeZone: 'Asia/Singapore', hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }).replace(/:/g, '');
@@ -190,12 +194,12 @@ const fetchLocationDetails = (latitude, longitude) => {
   };
 
 
-  return (
-    <div className="route-planner">
-      <PromptLocationPermission setLocation={setLocation} />
-      {location && <p>Current Location: {currentAddress}</p>};
-      
-      
+    return (
+  <div className="route-planner">
+    <PromptLocationPermission setLocation={setLocation} />
+    {location && <p>Current Location: {currentAddress}</p>}
+
+    <div className="map-container" style={{ flex: 1 }}>
       <div className="map-background">
         {startCoordinates && endCoordinates ? (
           <iframe
@@ -203,6 +207,7 @@ const fetchLocationDetails = (latitude, longitude) => {
             scrolling="no"
             frameBorder="0"
             allowFullScreen
+            style={{ width: '100%', height: '800px' }}
           ></iframe>
         ) : (
           <iframe
@@ -210,24 +215,38 @@ const fetchLocationDetails = (latitude, longitude) => {
             scrolling="no"
             frameBorder="0"
             allowFullScreen
+            style={{ width: '100%', height: '800px' }}
           ></iframe>
         )}
       </div>
-      <input
-        type="text"
-        placeholder="Start Address"
-        value={currentAddress}
-        onChange={(e) => setStartAddress(e.target.value)}
-      />
-      <input
-        type="text"
-        placeholder="End Address"
-        value={endAddress}
-        onChange={(e) => setEndAddress(e.target.value)}
-      />
-     
-      <button onClick={handleFetchRoutes}>Get Routes</button>
+    </div>
   
+    <div className='input-and-map-container' style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <div className='address-inputs' style={{ width: '300px' }}>
+        <div>
+          <label htmlFor="startAddress">Start Address</label>
+          <input
+            id="startAddress"
+            type="text"
+            placeholder="Start Address"
+            value={currentAddress}
+            onChange={(e) => setStartAddress(e.target.value)}
+          />
+        </div>
+        <div>
+          <label htmlFor='endAddress'>End Destination</label>
+          <input
+            type="text"
+            placeholder="End Address"
+            value={endAddress}
+            onChange={(e) => setEndAddress(e.target.value)}
+          />
+        </div>
+        <button onClick={handleFetchRoutes} style={{ margin: '10px auto', display: 'block' }}>
+          Get routes
+        </button>
+      </div>
+
       {/* Filter options */}
       <div className="filter-options">
         <label>
@@ -239,6 +258,7 @@ const fetchLocationDetails = (latitude, longitude) => {
           />
           Fastest Route
         </label>
+        <br />
         <label>
           <input
             type="radio"
@@ -249,34 +269,34 @@ const fetchLocationDetails = (latitude, longitude) => {
           Cheapest Route
         </label>
       </div>
-  
-      <div className="routes">
-        {filteredRoutes.map((route, index) => (
-          <div key={index} className="itinerary">
-            <p><strong>Route {index + 1}</strong></p>
-            <p><strong>Duration (minutes):</strong> {Math.round(route.duration / 60)}</p>
-            <p><strong>Fare:</strong> {route.fare}</p>
-            {/* Display legs information */}
-            <div className="legs">
-              {route.legs.map((leg, legIndex) => (
-                <div key={legIndex}>
-                  <p><strong>Leg {legIndex + 1}:</strong></p>
-                  <p><strong>Mode:</strong> {leg.mode}</p>
-                  <p><strong>Bus Number / MRT Line:</strong> {leg.route || "N/A"}</p>
-                  <p><strong>From:</strong> {leg.from.name}</p>
-                  {leg.mode === "BUS" && (
-                    <p><strong>Next Bus Arrival Time:</strong> {formatTime(leg.from.arrival)}</p>
-                  )}
-                  <p><strong>To:</strong> {leg.to.name}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
     </div>
-  );
-  
-};
 
+    <div className="routes" style={{ borderRadius: '10px', backgroundColor: '#f0f0f0', padding: '10px', marginTop: '20px' }}>
+      {filteredRoutes.map((route, index) => (
+        <div key={index} className="itinerary">
+          <p><strong>Route {index + 1}</strong></p>
+          <p><strong>Duration (minutes):</strong> {Math.round(route.duration / 60)}</p>
+          <p><strong>Fare:</strong> {route.fare}</p>
+          {/* Display legs information */}
+          <div className="legs">
+            {route.legs.map((leg, legIndex) => (
+              <div key={legIndex}>
+                <p><strong>Leg {legIndex + 1}:</strong></p>
+                <p><strong>Mode:</strong> {leg.mode}</p>
+                <p><strong>Bus Number / MRT Line:</strong> {leg.route || "N/A"}</p>
+                <p><strong>From:</strong> {leg.from.name}</p>
+                {leg.mode === "BUS" && (
+                  <p><strong>Next Bus Arrival Time:</strong> {formatTime(leg.from.arrival)}</p>
+                )}
+                <p><strong>To:</strong> {leg.to.name}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+};
 export default RoutePlanner;
+
