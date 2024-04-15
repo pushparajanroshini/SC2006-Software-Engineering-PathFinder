@@ -1,14 +1,13 @@
-import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 import './index.css';
 import PromptLocationPermission from './promptLocationPermission.js';
-import LocationComponent from './promptLocationPermission.js';
 
 const RoutePlanner = () => {
   const [startAddress, setStartAddress] = useState('');
   const [endAddress, setEndAddress] = useState('');
-  const [date, setDate] = useState('');
-  const [time, setTime] = useState('');
+  //const [date, setDate] = useState('');
+  //const [time, setTime] = useState('');
   const [routes, setRoutes] = useState([]);
   const [filteredRoutes, setFilteredRoutes] = useState([]);
   const [filterOption, setFilterOption] = useState('fastest'); // Default filter option
@@ -20,6 +19,8 @@ const RoutePlanner = () => {
   const [currentAddress, setCurrentAddress] = useState(null); // State for building name
   const [showRoutes, setShowRoutes] = useState(false); // State to control route box visibility
   const [mapMarkerUrl, setMapMarkerUrl] = useState(''); // URL for map with marker
+  const [shortestRouteData, setShortestRouteData] = useState(null);
+  const [fastestRouteData, setFastestRouteData] = useState(null);
 
 
 
@@ -104,7 +105,7 @@ const fetchLocationDetails = (latitude, longitude) => {
     .then(response => {
       const authorizationToken = response.data.access_token;
       
-      fetchPTData(authorizationToken, startAddress, endAddress, date, time);
+      fetchPTData(authorizationToken, startAddress, endAddress);
 
     })
     .catch(error => {
@@ -113,7 +114,8 @@ const fetchLocationDetails = (latitude, longitude) => {
   };
   //FetchPTData
 
-  const fetchPTData = (authorizationToken, startAddress, endAddress, date, time) => {
+  
+  const fetchPTData = (authorizationToken, startAddress, endAddress) => {
     const requestOptions = {
       headers: {
         Authorization: authorizationToken,
@@ -152,7 +154,7 @@ const fetchLocationDetails = (latitude, longitude) => {
   // Update state with coordinates
   setStartCoordinates(startCoordinates);
   setEndCoordinates(endCoordinates);
-
+  
   const routeUrl = `https://www.onemap.gov.sg/api/public/routingsvc/route?start=${startCoordinates.latitude},${startCoordinates.longitude}&end=${endCoordinates.latitude},${endCoordinates.longitude}&routeType=pt&date=08-08-2024&time=100000&mode=TRANSIT&numItineraries=2`;
 
   return axios.get(routeUrl, requestOptions);
@@ -200,8 +202,194 @@ const fetchLocationDetails = (latitude, longitude) => {
     return `${hours}:${minutes}:${seconds}`; // Return the formatted time
   };
 
+  function findNearestTaxi(startCoordinates, taxiData) {
+    const taxiCoordinates = taxiData.value.map(taxi => ({
+        latitude: taxi.Latitude,
+        longitude: taxi.Longitude
+    }));
 
-    return (
+    // calculate distances between start coordinates and each taxi
+    const distances = taxiCoordinates.map(coordinate => calculateDistance(startCoordinates, coordinate));
+
+    // find the index of the nearest taxi
+    const nearestTaxiIndex = distances.indexOf(Math.min(...distances));
+
+    // return the nearest taxi's coordinates
+    return taxiCoordinates[nearestTaxiIndex];
+}
+
+function calculateDistance(coords1, coords2) {
+  const earthRadiusKm = 6371;
+  const lat1 = degreesToRadians(coords1.latitude);
+  const lat2 = degreesToRadians(coords2.latitude);
+  const long1 = degreesToRadians(coords1.longitude); // Convert longitude of coords1 to radians
+  const long2 = degreesToRadians(coords2.longitude); // Convert longitude of coords2 to radians
+
+  const deltaLat = degreesToRadians(coords2.latitude - coords1.latitude);
+  const deltaLng = degreesToRadians(coords2.longitude - coords1.longitude);
+
+  const a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
+      Math.cos(lat1) * Math.cos(lat2) *
+      Math.sin(deltaLng / 2) * Math.sin(deltaLng / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const distance = earthRadiusKm * c;
+
+  return distance;
+}
+
+function degreesToRadians(degrees) {
+  return degrees * (Math.PI / 180);
+}
+
+
+
+const publicHolidays = [
+  '01-01-2024',   //new year's
+  '02-10-2024',   //cny
+  '02-11-2024',   //cny
+  '02-12-2024',   //cny
+  '03-29-2024',   //good fri
+  '04-10-2024',   //hari raya puasa
+  '05-01-2024',   //labour day 
+  '05-22-2024',   //vesak day
+  '06-17-2024',   //hari raya haji
+  '08-09-2024',   //national day
+  '10-31-2024',   //deepavali
+  '12-25-2024',   //christmas 
+];
+
+//check if date is public holiday 
+function isPublicHoliday(date){
+  // Check if the dateString exists in the publicHolidays array
+  return publicHolidays.includes(date);
+}
+
+function calculateTaxiFare(distance, time, isPublicHoliday) {
+  // Define base fare and distance-based unit fare
+  const baseFare = 4.50;
+  let distanceUnitFare = 0;
+
+  // Check if the distance is within the range of 1km to 10km
+  if (distance <= 10) {
+      // Calculate fare for every 400 meters within the range
+      distanceUnitFare = Math.ceil(distance * 1000 / 400) * 0.25; // 25 cents every 400m
+  } else {
+      // Calculate fare for the first 10km
+      distanceUnitFare = Math.ceil(10 * 1000 / 400) * 0.25; // 25 cents every 400m
+
+      // Calculate fare for the distance beyond 10km
+      distanceUnitFare += Math.ceil((distance - 10) * 1000 / 350) * 0.25; // 25 cents every 350m
+  }
+
+
+  // Calculate distance-based fare
+  //const distanceFare = distance * distanceUnitFare;
+
+  // Check for peak periods, weekends, and late-night hiring
+  let fareMultiplier = 1; // Default multiplier
+  const hour = parseInt(time.slice(0,2)); // Extract hour from the time string
+
+  // Peak periods
+  if ((hour >= 6 && hour < 9 && !isPublicHoliday) || (hour >= 17 && isPublicHoliday)) {
+      fareMultiplier += 0.25;
+  }
+
+  // Weekends
+  if ((hour >= 10 && hour < 14) || (hour >= 17 && isPublicHoliday)) {
+      fareMultiplier += 0.25;
+  }
+
+  // Late Night Hiring
+  if (hour >= 0 && hour < 6) {
+      fareMultiplier += 0.5;
+  }
+
+  // Calculate total fare
+  const totalFare = (baseFare + distanceUnitFare) * fareMultiplier;
+
+  return totalFare;
+}
+
+  function fetchTaxiData(startCoordinates, endCoordinates) {
+    axios.post('https://www.onemap.gov.sg/api/auth/post/getToken', {
+      email: "YONG0257@e.ntu.edu.sg",
+      password: "Sc2006sc2006"
+    })
+    .then(response => {
+      const authorizationToken = response.data.access_token;
+
+      const routeUrl = `https://www.onemap.gov.sg/api/public/routingsvc/route?start=${startCoordinates.latitude},${startCoordinates.longitude}&end=${endCoordinates.latitude},${endCoordinates.longitude}&routeType=drive&date=100000&time=08-08-2024`;
+
+      const routeHeaders = new Headers();
+      routeHeaders.append("Authorization", authorizationToken);
+      routeHeaders.append("Cookie", "_toffsuid=rB8E8GYadhQiED8MBsoLAg==");
+
+      const routeRequestOptions = {
+        method: "GET",
+        headers: routeHeaders,
+        redirect: "follow"
+      };
+
+    return fetch(routeUrl, routeRequestOptions)
+      .then(response => response.json())
+      .then(result => {
+          let shortestRoute = result;
+          let fastestRoute = result;
+
+          if (result.alternativeroute && result.alternativeroute.length > 0) {
+              result.alternativeroute.forEach(route => {
+                  if (route.route_summary.total_distance < shortestRoute.route_summary.total_distance) {
+                      shortestRoute = route;
+                  }
+                  if (route.route_summary.total_time < fastestRoute.route_summary.total_time) {
+                      fastestRoute = route;
+                  }
+              });
+          }
+
+          return {
+              shortestDistance: shortestRoute.route_summary.total_distance,
+              shortestTime: shortestRoute.route_summary.total_time,
+              fastestDistance: fastestRoute.route_summary.total_distance,
+              fastestTime: fastestRoute.route_summary.total_time
+          };
+      });
+  });
+}
+
+function TaxiContainer({ filteredRoutes, filterOption}) {
+
+  useEffect(() => {
+    if (filterOption === 'fastest') {
+        // Find the route with the fastest time
+        const fastestRoute = filteredRoutes.reduce((prev, current) => {
+            return prev.total_time < current.total_time ? prev : current;
+        });
+
+        setFastestRouteData({
+            duration: fastestRoute.total_time,
+            distance: fastestRoute.route_summary.total_distance,
+        });
+        // Clear shortest route data
+        setShortestRouteData(null);
+    } else if (filterOption === 'cheapest') {
+        // Find the route with the shortest distance
+        const shortestRoute = filteredRoutes.reduce((prev, current) => {
+            return prev.total_distance < current.total_distance ? prev : current;
+        });
+
+        setShortestRouteData({
+            duration: shortestRoute.total_time,
+            distance: shortestRoute.route_summary.total_distance,
+        });
+        // Clear fastest route data
+        setFastestRouteData(null);
+    }
+}, [filteredRoutes, filterOption]);
+}
+
+
+return (
   <div className="route-planner">
     <PromptLocationPermission setLocation={setLocation} />
     {location && <p>Current Location: {currentAddress}</p>}
@@ -277,36 +465,67 @@ const fetchLocationDetails = (latitude, longitude) => {
         </label>
       </div>
     </div>
-
-    <div className="routes" style={{ borderRadius: '10px', backgroundColor: '#f0f0f0', padding: '10px', marginTop: '20px' }}>
-      {filteredRoutes.map((route, index) => (
-        <div key={index} className="itinerary">
-          <h2>Transit</h2>
-          <p><strong>Route {index + 1}</strong></p>
-          <p><strong>Duration (minutes):</strong> {Math.round(route.duration / 60)}</p>
-          <p><strong>Fare:</strong> {route.fare}</p>
-          <button>Select</button>
-          <br/><br/>
-          {/* Display legs information */}
-          <div className="legs">
-            {route.legs.map((leg, legIndex) => (
-              <div key={legIndex}>
-                <p><strong>Leg {legIndex + 1}:</strong></p>
-                <p><strong>Mode:</strong> {leg.mode}</p>
-                <p><strong>Bus Number / MRT Line:</strong> {leg.route || "N/A"}</p>
-                <p><strong>From:</strong> {leg.from.name}</p>
-                {leg.mode === "BUS" && (
-                  <p><strong>Next Bus Arrival Time:</strong> {formatTime(leg.from.arrival)}</p>
-                )}
-                <p><strong>To:</strong> {leg.to.name}</p>
-              </div>
-            ))}
+  
+    {/* Container for Routes and Taxi */}
+    <div className="routes-and-taxi-container" style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
+      {/* Routes Container */}
+      <div className="routes" style={{ flex: '1', marginRight: '10px', borderRadius: '10px', backgroundColor: '#f0f0f0', padding: '10px' }}>
+        {filteredRoutes.map((route, index) => (
+          <div key={index} className="itinerary">
+            <h2>Transit</h2>
+            {/* Display route details */}
+            <p><strong>Route {index + 1}</strong></p>
+            <p><strong>Duration (minutes):</strong> {Math.round(route.duration / 60)}</p>
+            <p><strong>Fare:</strong> ${route.fare}</p>
+            <button>Select</button>
+            <br/><br/>
+            {/* Display legs information */}
+            <div className="legs">
+              {route.legs.map((leg, legIndex) => (
+                <div key={legIndex}>
+                  <p><strong>Leg {legIndex + 1}:</strong></p>
+                  <p><strong>Mode:</strong> {leg.mode}</p>
+                  <p><strong>Bus Number / MRT Line:</strong> {leg.route || "N/A"}</p>
+                  <p><strong>From:</strong> {leg.from.name}</p>
+                  {leg.mode === "BUS" && (
+                    <p><strong>Next Bus Arrival Time:</strong> {formatTime(leg.from.arrival)}</p>
+                  )}
+                  <p><strong>To:</strong> {leg.to.name}</p>
+                  <hr /> {/*add spacing */}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
+      
+      {/* Taxi Container */}
+      <div className="TaxiRoute" style={{ flex: '1', marginRight: '10px',borderRadius: '10px', backgroundColor: '#f0f0f0', padding: '10px' }}>
+        {/* Render TaxiContainer component */}
+        <h2>Taxi</h2>
+            {filterOption === 'fastest' && fastestRouteData && (
+                <div>
+                    <h3>Fastest Route</h3>
+                    <p>Duration (minutes): {Math.round(fastestRouteData.duration / 60)}</p>
+                    {/* Calculate fare using calculateTaxiFare function */}
+                    <p>Fare: ${calculateTaxiFare(fastestRouteData.distance / 1000, isPublicHoliday("08-08-2024"))}</p>
+                    <p>Distance (km): {fastestRouteData.distance / 1000}</p>
+                </div>
+            )}
+            {filterOption === 'cheapest' && shortestRouteData && (
+                <div>
+                    <h3>Shortest Route</h3>
+                    <p>Duration (minutes): {Math.round(shortestRouteData.duration / 60)}</p>
+                    {/* Calculate fare using calculateTaxiFare function */}
+                    <p>Fare: ${calculateTaxiFare(shortestRouteData.distance / 1000,isPublicHoliday("08-08-2024"))}</p>
+                    <p>Distance (km): {shortestRouteData.distance / 1000}</p>
+                </div>
+            )}
+      </div>
     </div>
   </div>
 );
-};
+}
+
 export default RoutePlanner;
 

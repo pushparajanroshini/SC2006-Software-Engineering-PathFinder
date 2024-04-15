@@ -1,26 +1,23 @@
 import React from 'react';
 import {
-  BrowserRouter as Router,
-  Routes,
   Route,
-  Link,
-  useHistory,
-  Switch
+  BrowserRouter as Router,
+  Routes
 } from 'react-router-dom';
 
 
 
+import Header from './header';
 import './App.css';
-import Header from './Header';
 import Main from './Component';
-import ManageWallet from './Wallet';
-import Login from './Login';
-import TripHist from './TripHistory';
-import ManageProfile from './Profile';
-import Register from './Register';
-import Logout from './Logout';
 import Current from './CurrentUser';
 import ForgetPw from './ForgetPw';
+import Login from './Login';
+import Logout from './Logout';
+import ManageProfile from './Profile';
+import Register from './Register';
+import TripHist from './TripHistory';
+import ManageWallet from './Wallet';
 
 const App = () => {
   return (
