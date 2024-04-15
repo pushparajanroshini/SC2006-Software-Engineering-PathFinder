@@ -281,9 +281,12 @@ const fetchLocationDetails = (latitude, longitude) => {
     <div className="routes" style={{ borderRadius: '10px', backgroundColor: '#f0f0f0', padding: '10px', marginTop: '20px' }}>
       {filteredRoutes.map((route, index) => (
         <div key={index} className="itinerary">
+          <h2>Transit</h2>
           <p><strong>Route {index + 1}</strong></p>
           <p><strong>Duration (minutes):</strong> {Math.round(route.duration / 60)}</p>
           <p><strong>Fare:</strong> {route.fare}</p>
+          <button>Select</button>
+          <br/><br/>
           {/* Display legs information */}
           <div className="legs">
             {route.legs.map((leg, legIndex) => (

@@ -263,3 +263,7 @@ button:hover {
   padding: 20px;
   border: 1px solid black;
 }
+
+.routes{
+  display: flex;
+}
