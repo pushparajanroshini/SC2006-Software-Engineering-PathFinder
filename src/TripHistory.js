@@ -86,4 +86,4 @@ const App = () => {
   );
 };
 
-export default NewWallet;
+export default App;
