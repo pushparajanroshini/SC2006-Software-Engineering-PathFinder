@@ -24,7 +24,8 @@ const Balance = () => {
           if (docSnap.exists()) {
             console.log("Document data:", docSnap.data());
             const balanceData = docSnap.data()['balance'];
-            setBalance(balanceData);
+            const formattedBalance = parseFloat(balanceData).toFixed(2);
+            setBalance(formattedBalance);
             console.log('raw balance is:', balance);
 
           } else {
