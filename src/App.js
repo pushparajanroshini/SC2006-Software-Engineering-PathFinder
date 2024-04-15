@@ -4,13 +4,14 @@ import {
   Routes,
   Route,
   Link,
-  useHistory
+  useHistory,
+  Switch
 } from 'react-router-dom';
 
 
 
 import './App.css';
-import Header from './header';
+import Header from './Header';
 import Main from './Component';
 import ManageWallet from './Wallet';
 import Login from './Login';
@@ -25,8 +26,9 @@ const App = () => {
   return (
     <Router>
       <div className="app-container">
-      <Header />
+        <Header />
         <Routes>
+          <Route exact path="/" element={<Login />} />
           <Route path="/" element={<Login />} />
           <Route path="/Login" element={<Login />} />
           <Route path="/Register" element={<Register />} />
