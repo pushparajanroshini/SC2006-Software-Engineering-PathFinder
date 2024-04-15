@@ -6,6 +6,7 @@ import { getAuth,
                           EmailAuthProvider, 
                           reauthenticateWithCredential 
         } from "firebase/auth";
+import { reauthUser } from './reauth';
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "./firebase";
 import { sendEmailVerification, verifyBeforeUpdateEmail } from "firebase/auth";
@@ -18,6 +19,7 @@ const EditProfile = () => {
     firstName: '',
     lastName: '',
     email: '',
+    currentPassword: '',
     password: '',
     confirmPassword: ''
   });
@@ -46,28 +48,60 @@ const EditProfile = () => {
   const [error, setError] = useState('');
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+
     try {
       const auth = getAuth();
       const currentUser = auth.currentUser;
       const passwordRegex = /^(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{6,}$/;
+/*
+        await reauthUser(currentUser, user.currentPassword).then(() => {
+          console.log("Current Password validated");
+        }).catch((error) => {
+          console.error("Current Password validation failed!", console.error);
+          setError('Current password invalid.');
+          return;
+        });
+*/
+try {
+  await reauthUser(currentUser, user.currentPassword);
+  console.log("Current Password validated");
+
+  // Continue with the rest of the code here
+} catch (error) {
+  console.error("Current Password validation failed!", error);
+  setError('Current password invalid.');
+  return;
+}
 
       // check for password format
-      if (!passwordRegex.test(user.password)) {
-        setError('Password must be at least 6 characters long and include at least one special character.');
-        return;
+      if (user.password !== undefined && user.password !== ''){
+        if (!passwordRegex.test(user.password)) {
+          console.log(user.password);
+          setError('Password must be at least 6 characters long and include at least one special character.');
+          return;
+        }
       }
       // check if password and confirm password matched
-      if (user.password !== user.confirmPassword) {
-        setError('Passwords do not match.');
-        return;
+      
+      if (user.password !== undefined && user.password !== ''){
+        if (user.password !== user.confirmPassword) {
+          setError('Passwords do not match.');
+          console.log(user.password);
+
+          return;
+        }
       }
-  
+    
       // Prepare user data to update in Firestore
       const userData = {};
       if (user.firstName.trim() !== '') {
         userData.firstName = user.firstName.trim();
+        await updateUserProfile(auth.currentUser, {
+          displayName: userData.firstName
+        });
       }
-      if (user.lastName.trim() !== '') {
+      if (user.lastName && user.lastName.trim() !== '') {
         userData.lastName = user.lastName.trim();
       }
       if (Object.keys(userData).length > 0) {
@@ -86,23 +120,26 @@ const EditProfile = () => {
           // ...
           console.error("Email update failed:", error.message);
         });
+
+        
       }
   
       // Update user password if a new password is provided
   
       if (user.password.trim() !== '' && user.password !== null) {
-        updatePassword(currentUser, user.password).then(() => {
+        await updatePassword(currentUser, user.password).then(() => {
           // Update successful.
           console.log("Password update successful!", user);
         }).catch((error) => {
           // An error ocurred
           // ...
           console.error("Password update failed!", error.message);
+
         });
       }
 
 
-  
+      window.location.href="/TripHistory";
       console.log('User profile updated successfully');
     } catch (error) {
       console.error('Error updating user profile:', error);
@@ -119,7 +156,7 @@ const EditProfile = () => {
         <label>
           First Name:
           <input
-            type="text"
+
             name="firstName"
             value={user.firstName}
             onChange={handleChange}
@@ -129,7 +166,7 @@ const EditProfile = () => {
         <label>
           Last Name:
           <input
-            type="text"
+
             name="lastName"
             value={user.lastName}
             onChange={handleChange}
@@ -143,16 +180,28 @@ const EditProfile = () => {
             name="email"
             value={user.email}
             onChange={handleChange}
-            placeholder='test@gmail.com'
+            placeholder='johndoe@gmail.com'
           />
         </label>
         <label>
-          Password:
+         Current Password:
+          <input
+            type="password"
+            name="currentPassword"
+            value={user.currentPassword}
+            onChange={handleChange}
+            placeholder='Enter current password to make changes'
+            required
+          />
+        </label>
+        <label>
+         New Password:
           <input
             type="password"
             name="password"
             value={user.password}
             onChange={handleChange}
+            placeholder='Enter new password to change password'
           />
         </label>
         <label>
@@ -162,6 +211,7 @@ const EditProfile = () => {
             name="confirmPassword"
             value={user.confirmPassword}
             onChange={handleChange}
+            placeholder='Confirm new password'
           />
         </label>
         <button type="submit">Update Profile</button>
