@@ -7,7 +7,7 @@ const Header = () => {
   const location = useLocation();
 
   // Decide which header to show based on the current route
-  const showLoginHeader = location.pathname === '/' || location.pathname === '/Login' || location.pathname === '/Register' || location.pathname === '/ForgetPw';
+  const showLoginHeader = location.pathname === '/' || location.pathname === '/Login' || location.pathname === '/Register' || location.pathname === '/ForgetPw' || location.pathname === '/Logout';
 
   return (
     <>
