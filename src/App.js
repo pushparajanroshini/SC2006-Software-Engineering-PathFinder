@@ -9,7 +9,7 @@ import {
 
 import Header from './header';
 import './App.css';
-import Header from './header';
+import header from './header';
 import Main from './Component';
 import Current from './CurrentUser';
 import ForgetPw from './ForgetPw';
