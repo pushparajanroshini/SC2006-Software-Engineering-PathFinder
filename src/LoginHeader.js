@@ -15,7 +15,6 @@ const LoginHeader = () => {
         </nav>
       </div>
       <div className="header-right">
-        <div className="fund-info">FUND IS LOW $9.0</div>
         <div className="user-menu">
           {/* Display the user's email if logged in, or "Login / Sign Up" link otherwise */}
           <div className="user-greeting">

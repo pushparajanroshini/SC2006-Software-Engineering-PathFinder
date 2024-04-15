@@ -21,6 +21,7 @@ const Login = () => {
       [name]: value
     }));
   };
+  const [error, setError] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -40,6 +41,7 @@ const Login = () => {
         const errorCode = error.code;
         const errorMessage = error.message;
         console.error("Sign in failed:", error.message);
+        setError('Incorrect password.');
       });
   };
 
@@ -48,6 +50,7 @@ const Login = () => {
     <div className="login-container">
       <div className="login-form">
         <h1>Pathfinder</h1>
+        {error && <p className="error-message">{error}</p>} 
         <form onSubmit={handleSubmit}>
           {/* Form fields */}
           <input 
@@ -55,7 +58,8 @@ const Login = () => {
             name="email" 
             placeholder="Email" 
             value={formData.email} 
-            onChange={handleChange} 
+            onChange={handleChange}
+            required
           />
           <input 
             type="password" 

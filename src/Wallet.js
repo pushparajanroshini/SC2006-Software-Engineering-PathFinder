@@ -1,12 +1,34 @@
 import React, { useState } from 'react';
+import { doc, collection, updateDoc, increment } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
+import { db } from "./firebase";
+
 import './ManageWallet.css';
 const ManageWallet = () => {
   const [monthlyFunds, setMonthlyFunds] = useState(100); // default value
   const [allowNotification, setAllowNotification] = useState(false);
   const [alertWhenLow, setAlertWhenLow] = useState(false);
 
-  const handleUpdate = () => {
+  const handleMonthlyFundsChange = (e) => {
+    let value = e.target.value;
+    // Remove any dollar signs at the beginning of the value
+    value = value.replace(/^\$/, '');
+    // Validate if the value is a valid number with up to 2 decimal places
+    if (/^\d+(\.\d{0,2})?$/.test(value) || value === '') {
+      setMonthlyFunds(value);
+    }
+  };
+
+  const handleUpdate = async (e) => {
     // Logic to update the wallet settings
+    const auth = getAuth();
+    const currentUser = auth.currentUser;
+    const userDocRef = doc(db, 'users', currentUser.uid);
+
+    await updateDoc(userDocRef, {
+      balance: increment(monthlyFunds)
+    });
+
     console.log('Updated settings:', {
       monthlyFunds,
       allowNotification,
@@ -25,7 +47,7 @@ const ManageWallet = () => {
           type="text"
           id="monthlyFunds"
           value={`$${monthlyFunds}`}
-          onChange={(e) => setMonthlyFunds(e.target.value.replace(/^\$/, ''))}
+          onChange={handleMonthlyFundsChange}
         />
       </div>
       <div className="notification-checkbox">

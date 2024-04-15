@@ -46,6 +46,8 @@ const EditProfile = () => {
     }));
   };
   const [error, setError] = useState('');
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -53,7 +55,6 @@ const EditProfile = () => {
     try {
       const auth = getAuth();
       const currentUser = auth.currentUser;
-      const passwordRegex = /^(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{6,}$/;
 /*
         await reauthUser(currentUser, user.currentPassword).then(() => {
           console.log("Current Password validated");
@@ -75,24 +76,10 @@ try {
 }
 
       // check for password format
-      if (user.password !== undefined && user.password !== ''){
-        if (!passwordRegex.test(user.password)) {
-          console.log(user.password);
-          setError('Password must be at least 6 characters long and include at least one special character.');
-          return;
-        }
-      }
-      // check if password and confirm password matched
-      
-      if (user.password !== undefined && user.password !== ''){
-        if (user.password !== user.confirmPassword) {
-          setError('Passwords do not match.');
-          console.log(user.password);
 
-          return;
-        }
-      }
-    
+      // check if password and confirm password matched
+
+
       // Prepare user data to update in Firestore
       const userData = {};
       if (user.firstName.trim() !== '') {
@@ -120,13 +107,33 @@ try {
           // ...
           console.error("Email update failed:", error.message);
         });
-
-        
+        try{
+        //await handleCheckPasswordRequirements();
+        //await handleCheckPasswordMatch();
+        } catch (error) {
+          console.error('Error in handleCheckPWs:', error);
+        }
       }
-  
+
+
+      const passwordRegex = /^(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{6,}$/;
+
       // Update user password if a new password is provided
-  
-      if (user.password.trim() !== '' && user.password !== null) {
+    if (user.password !== undefined){
+      if (user.password.trim() !== '') {
+        if (!passwordRegex.test(user.password)) {
+          console.log(user.password);
+          setError('Password must be at least 6 characters long and include at least one special character.');
+          return;
+        }
+        else if (user.password !== user.confirmPassword) {
+          setError('Passwords do not match.');
+          console.log(user.password);
+
+          return;
+        }
+        else {
+
         await updatePassword(currentUser, user.password).then(() => {
           // Update successful.
           console.log("Password update successful!", user);
@@ -135,10 +142,11 @@ try {
           // ...
           console.error("Password update failed!", error.message);
 
-        });
+       });
+      
       }
-
-
+    }
+  }
       window.location.href="/TripHistory";
       console.log('User profile updated successfully');
     } catch (error) {
@@ -174,7 +182,7 @@ try {
           />
         </label>
         <label>
-          Email:
+         New Email:
           <input
             type="email"
             name="email"
@@ -184,7 +192,7 @@ try {
           />
         </label>
         <label>
-         Current Password:
+         * Current Password:
           <input
             type="password"
             name="currentPassword"
