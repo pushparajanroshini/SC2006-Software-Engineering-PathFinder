@@ -35,6 +35,8 @@ const ManageWallet = () => {
       alertWhenLow,
     });
 
+    window.location.reload();
+
     // You would typically send this data to your backend with an API call
   };
 

@@ -18,6 +18,7 @@ import ManageProfile from './Profile';
 import Register from './Register';
 import TripHist from './TripHistory';
 import ManageWallet from './Wallet';
+import Balance from './Balance';
 
 const App = () => {
   return (
@@ -38,6 +39,7 @@ const App = () => {
           <Route path="/Logout" element={<Logout />} />
           <Route path="/Current" element={<Current />} />
           <Route path="/ForgetPw" element={<ForgetPw/>} />
+          <Route path="/Balance" element={<Balance/>} />
 
           {/* Add other routes here */}
         </Routes>

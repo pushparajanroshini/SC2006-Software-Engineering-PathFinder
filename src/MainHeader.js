@@ -2,6 +2,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import CurrentUser from './CurrentUser'; // Import the CurrentUser component
+import Balance from './Balance';
 
 const MainHeader = () => {
   const navigate = useNavigate();
@@ -19,7 +20,8 @@ const MainHeader = () => {
       </div>
       <div className="header-right">
         <div className="fund-info">
-          FUND IS LOW $9.0</div>
+          <Balance />
+          </div>
         <div className="user-menu">
           {/* Display the user's email if logged in, or "Login / Sign Up" link otherwise */}
           <div className="user-greeting">
