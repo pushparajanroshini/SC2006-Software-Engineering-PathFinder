@@ -1,3 +1,7 @@
+.error-message{
+  color: red;
+}
+
 .edit-profile {
     max-width: 400px;
     margin: 20px auto;

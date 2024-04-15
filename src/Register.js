@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import "./Register.css";
-import { getAuth, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { collection, addDoc } from "firebase/firestore"; // Import 'firestore' from your firebase.js file
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { collection, addDoc } from "firebase/firestore";
 import { db } from "./firebase";
 
 const Register = () => {
@@ -13,46 +13,46 @@ const Register = () => {
     confirmPassword: ''
   });
 
+  const [error, setError] = useState(''); // State to store the error message
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prevState => ({
       ...prevState,
       [name]: value
     }));
+    setError(''); // Clear error message when user is typing
   };
 
-  
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const passwordRegex = /^(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{6,}$/;
+
+    if (!passwordRegex.test(formData.password)) {
+      setError('Password must be at least 6 characters long and include at least one special character.');
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
+
     try {
-      // Create the user with email and password
       const auth = getAuth();
       const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
-      
-      // Access the newly created user's UID
-      //const userId = userCredential.user.uid;
 
-      // Access the Firestore collection 'users'
-      //const usersCollection = firestore.collection('users');
-
-      const docRef = await addDoc(collection(db, "users"), {
+      await addDoc(collection(db, "users"), {
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email
-    
-
-      // Add the user's data to Firestore
-     // await usersCollection.doc(userId).set({
-      // firstName: formData.firstName,
-       // lastName: formData.lastName,
-        //email: formData.email
-        // Add more fields if needed
       });
 
       console.log('User registered successfully');
       window.location.href = "/";
     } catch (error) {
       console.error('Error registering user:', error);
+      setError(error.message);
     }
   };
 
@@ -60,13 +60,15 @@ const Register = () => {
     <div className="form-container">
       <h1>Register for Pathfinder</h1>
       <form onSubmit={handleSubmit} className="register-form" id="MainForm">
+        {error && <p className="error-message">{error}</p>} 
+        <br></br>
         <label htmlFor="firstName">First Name</label>
         <input
           id="firstName"
           name="firstName"
           type="text"
           value={formData.firstName}
-          onChange={handleChange} 
+          onChange={handleChange}
           placeholder='John'
           required
         />

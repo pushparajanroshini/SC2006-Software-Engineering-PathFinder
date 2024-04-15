@@ -43,12 +43,24 @@ const EditProfile = () => {
       [name]: value
     }));
   };
-
+  const [error, setError] = useState('');
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const auth = getAuth();
       const currentUser = auth.currentUser;
+      const passwordRegex = /^(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{6,}$/;
+
+      // check for password format
+      if (!passwordRegex.test(user.password)) {
+        setError('Password must be at least 6 characters long and include at least one special character.');
+        return;
+      }
+      // check if password and confirm password matched
+      if (user.password !== user.confirmPassword) {
+        setError('Passwords do not match.');
+        return;
+      }
   
       // Prepare user data to update in Firestore
       const userData = {};
@@ -101,6 +113,8 @@ const EditProfile = () => {
   return (
     <div className="edit-profile">
       <h1>Edit Profile</h1>
+      {error && <p className="error-message">{error}</p>} 
+      <br></br>
       <form onSubmit={handleSubmit}>
         <label>
           First Name:

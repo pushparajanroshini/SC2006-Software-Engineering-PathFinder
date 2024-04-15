@@ -90,6 +90,13 @@ const fetchLocationDetails = (latitude, longitude) => {
 
 
   const handleFetchRoutes = () => {
+
+    // // prompt user for confirmation
+    // const confirmFetch = window.confirm("Do you want to fetch the routes based on the provided addresses?");
+    // //if user confirm
+    // if(confirmFetch){
+
+    // }
     axios.post('https://www.onemap.gov.sg/api/auth/post/getToken', {
       email: "YONG0257@e.ntu.edu.sg",
       password: "Sc2006sc2006"
