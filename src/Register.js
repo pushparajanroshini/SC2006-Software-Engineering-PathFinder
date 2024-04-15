@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import "./Register.css";
 import { getAuth, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { collection, addDoc } from "firebase/firestore";
+import { doc, setDoc, collection, addDoc } from "firebase/firestore";
 import { db } from "./firebase";
 
 const Register = () => {
@@ -52,7 +52,10 @@ const Register = () => {
         // ...
         console.error("First name not saved!", error.message);
       });
-      await addDoc(collection(db, "users"), {
+      const currentUser = auth.currentUser;
+      const userDocRef = doc(db, 'users', currentUser.uid);
+      const userData = {};
+      await setDoc(userDocRef, {
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
