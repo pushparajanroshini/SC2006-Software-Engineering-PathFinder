@@ -6,7 +6,7 @@
     max-width: 400px;
     margin: 20px auto;
     padding: 20px;
-    padding-right: 2rem;
+    padding-right: rem;
     border: 1px solid #ccc;
     border-radius: 4px;
   }
@@ -21,7 +21,10 @@
   }
   
   .edit-profile label {
+    display:flex;
+    flex-direction: column;
     margin-bottom: 10px;
+
   }
   
   .edit-profile input {
