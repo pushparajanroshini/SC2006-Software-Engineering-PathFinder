@@ -97,12 +97,6 @@ const RoutePlanner = () => {
 
   //   const handleFetchRoutes = () => {
 
-  //     // // prompt user for confirmation
-  //     // const confirmFetch = window.confirm("Do you want to fetch the routes based on the provided addresses?");
-  //     // //if user confirm
-  //     // if(confirmFetch){
-
-  //     // }
   //     axios.post('https://www.onemap.gov.sg/api/auth/post/getToken', {
   //       email: "YONG0257@e.ntu.edu.sg",
   //       password: "Sc2006sc2006"
@@ -541,6 +535,17 @@ const RoutePlanner = () => {
     backgroundColor: '#f0f0f0'
   };
 
+  const handleAddTrip = () => {
+
+    // prompt user for confirmation
+    const confirmFetch = window.confirm("Confirm add trip?");
+    //if user confirm
+    if (confirmFetch) {
+
+    }
+
+  };
+
 
   return (
     <div className="route-planner">
@@ -593,7 +598,7 @@ const RoutePlanner = () => {
           <button onClick={handleFetchRoutes} style={{ margin: '10px 16px', display: 'block', float: 'left' }}>
             Get routes
           </button>
-          <br/>
+          <br />
           {/* Filter options */}
           <div className="filter-options">
             <label>Fastest Route</label>
@@ -605,11 +610,11 @@ const RoutePlanner = () => {
             />
             <label>Cheapest Route</label>
             <input
-                type="radio"
-                value="cheapest"
-                checked={filterOption === 'cheapest'}
-                onChange={handleFilterChange}
-              />
+              type="radio"
+              value="cheapest"
+              checked={filterOption === 'cheapest'}
+              onChange={handleFilterChange}
+            />
           </div>
         </div>
       </div>
@@ -623,7 +628,7 @@ const RoutePlanner = () => {
               <p><strong>Route {index + 1}</strong></p>
               <p><strong>Duration (minutes):</strong> {Math.round(route.duration / 60)}</p>
               <p><strong>Fare:</strong> ${route.fare}</p>
-              <button>Select</button>
+              <button onClick={handleAddTrip}>Select</button>
               <br /><br />
               <div className="legs">
                 {route.legs.map((leg, legIndex) => (
@@ -645,7 +650,7 @@ const RoutePlanner = () => {
 
         {/* Taxi Container */}
         {routesFetched && (
-          <div className="taxi-container" style={{ flex: 1, padding: '10px', borderRadius: '10px', backgroundColor: '#f0f0f0'}}>
+          <div className="taxi-container" style={{ flex: 1, padding: '10px', borderRadius: '10px', backgroundColor: '#f0f0f0' }}>
             <br />
             <h1>Taxi</h1>
             {1 && (
@@ -654,7 +659,7 @@ const RoutePlanner = () => {
                 <p><strong>Duration:</strong> {taxiDuration}</p>
                 <p><strong>Distance (km):</strong> {taxiDistance}</p>
                 <p><strong>Fare:</strong> ${taxiFare}</p>
-                <button>Select</button>
+                <button onClick={handleAddTrip}>Select</button>
               </div>
             )}
           </div>

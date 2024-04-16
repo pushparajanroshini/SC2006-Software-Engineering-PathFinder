@@ -34,7 +34,7 @@ const Login = () => {
         console.log("User signed in:", user);
         
         //redirect to triphistory.js 
-        window.location.href="/TripHistory"
+        window.location.href="/Home"
       })
       .catch((error) => {
         // Handle errors here

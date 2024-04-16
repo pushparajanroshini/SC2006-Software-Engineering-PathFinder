@@ -70,7 +70,7 @@ input[type="text"]{
   
   .login-form {
     width: 300px;
-    margin-top: 5vh; /* Adjust this value to move the form higher on the page */
+    margin-top: 120px; /* Adjust this value to move the form higher on the page */
     padding: 1rem;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     text-align: center;

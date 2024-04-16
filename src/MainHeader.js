@@ -30,8 +30,7 @@ const MainHeader = () => {
           </div>
           <ul className="user-options">
             <li onClick={() => {navigate("/ManageWalletBalance")}}>Manage Wallet Balance</li>
-            <li onClick={() => {navigate("/Logout")}}>Log Out</li>
-            <li onClick={() => {navigate("/Current")}}>Check current user</li>          
+            <li onClick={() => {navigate("/Logout")}}>Log Out</li>        
           </ul>
         </div>
       </div>
