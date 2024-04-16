@@ -2,6 +2,9 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import './index.css';
 import PromptLocationPermission from './promptLocationPermission.js';
+import { doc, collection, updateDoc, increment, addDoc, serverTimestamp} from "firebase/firestore";
+import { getAuth } from "firebase/auth";
+import { db } from "./firebase";
 
 const RoutePlanner = () => {
   const [startAddress, setStartAddress] = useState('');
@@ -535,14 +538,52 @@ const RoutePlanner = () => {
     backgroundColor: '#f0f0f0'
   };
 
-  const handleAddTrip = () => {
+  const calculateFareAndDuration = () => {
+    return filteredRoutes.map((route, index) => ({
+        routeNumber: index + 1,
+        fare: route.fare,
+        duration: Math.round(route.duration / 60) // Convert duration to minutes
+    }));
+};
+
+  const handleAddTrip = async() => {
 
     // prompt user for confirmation
     const confirmFetch = window.confirm("Confirm add trip?");
     //if user confirm
     if (confirmFetch) {
+       /// Calculate fare and duration for all trips
+       const transitRoutes = calculateFareAndDuration();
 
-    }
+       // Create a new trip object to store in the database
+       const newTrip = {
+           startAddress,
+           endAddress,
+           transitRoutes, // Store all the transit routes
+           taxi: { // Store taxi details
+               fare: taxiFare, // Taxi fare
+               duration: taxiDuration // Taxi duration
+           },
+           timestamp: serverTimestamp() // Add a timestamp for when the trip was added
+       };
+
+       try {
+           // Get current user
+           const auth  = getAuth;
+           const user = auth.currentUser;
+           if (user) {
+               // Reference to the Firestore collection for the current user's trips
+               const userTripsCollectionRef = collection(db, 'users', user.uid, 'trips');
+               // Add the new trip to the Firestore subcollection
+               const docRef = await addDoc(userTripsCollectionRef, newTrip);
+               console.log("Trip added with ID: ", docRef.id);
+           } else {
+               console.error("User not logged in.");
+           }
+       } catch (error) {
+           console.error("Error adding trip: ", error);
+       }
+   }
 
   };
 
@@ -669,4 +710,3 @@ const RoutePlanner = () => {
   );
 };
 export default RoutePlanner;
-
