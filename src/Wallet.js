@@ -8,14 +8,16 @@ const ManageWallet = () => {
   const [monthlyFunds, setMonthlyFunds] = useState(100); // default value
   const [allowNotification, setAllowNotification] = useState(false);
   const [alertWhenLow, setAlertWhenLow] = useState(false);
-
+  
   const handleMonthlyFundsChange = (e) => {
     let value = e.target.value;
-    // Remove any dollar signs at the beginning of the value
-    value = value.replace(/^\$/, '');
-    // Validate if the value is a valid number with up to 2 decimal places
-    if (/^\d+(\.\d{0,2})?$/.test(value) || value === '') {
-      setMonthlyFunds(value);
+    // Remove any non-numeric characters except periods
+    value = value.replace(/[^0-9.]/g, '');
+    // Parse the value as a float
+    const numericValue = parseFloat(value);
+    // Update the state only if the value is a valid number or empty string
+    if (!isNaN(numericValue) || value === '') {
+      setMonthlyFunds(numericValue);
     }
   };
 
@@ -26,12 +28,18 @@ const ManageWallet = () => {
     const userDocRef = doc(db, 'users', currentUser.uid);
     const tenPercentThreshold = 0.1*monthlyFunds;
 
-
-    await updateDoc(userDocRef, {
-      balance: monthlyFunds,
-      alertLowAmount: tenPercentThreshold
-    });
-
+    if (!Number.isNaN(monthlyFunds)) {
+      await updateDoc(userDocRef, {
+        balance: monthlyFunds,
+        alertLowAmount: tenPercentThreshold,
+        enableAlerts: alertWhenLow
+      });
+      console.log('balance is updated, monthlyfunds is:', monthlyFunds);
+    } else {
+      await updateDoc(userDocRef, {
+        enableAlerts: alertWhenLow
+      });
+    }
     console.log('Updated settings:', {
       monthlyFunds,
       allowNotification,

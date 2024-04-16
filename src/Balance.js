@@ -11,6 +11,7 @@ const Balance = () => {
   const [balance, setBalance] = useState(null);
   const [user, setUser] = useState(null);
   const [isLow, setIsLow] = useState(false);
+  const [enableAlerts, setEnableAlerts] = useState(false);
   useEffect(() => {
     const auth = getAuth();
     //const userDocRef = doc(db, 'users', currentUser.uid);
@@ -25,18 +26,22 @@ const Balance = () => {
             console.log("Document data:", docSnap.data());
             const balanceData = docSnap.data()['balance'];
             const alertLowData = docSnap.data()['alertLowAmount'];
-
+            const enableAlertsData = docSnap.data()['enableAlerts'];
             if (balanceData <= alertLowData) {
               setIsLow(true);
             }
 
             const formattedBalance = parseFloat(balanceData).toFixed(2);
-            setBalance(formattedBalance);
-            console.log('raw balance is:', balanceData);
-            console.log('formatted balance is:', formattedBalance);
-            console.log('alert low number is:', alertLowData);
-
-
+            await setBalance(formattedBalance);
+            await setEnableAlerts(enableAlertsData);
+/*
+            await console.log('raw balance is:', balanceData);
+            await console.log('formatted balance is:', formattedBalance);
+            await console.log('alert low number is:', alertLowData);
+            await console.log('enableAlertsData: ', enableAlertsData);
+            await console.log('enableAlertsactual: ', enableAlerts);
+            await console.log('enableAlertsactual: ', enableAlerts);
+*/
           } else {
             console.log("No such document!");
           } 
@@ -63,19 +68,26 @@ const Balance = () => {
 
   return (
     <div>
-      {isLow ? (
-        <div className = "balance-button-low">
+      {
+        enableAlerts ? (isLow ? (
+                          <div className = "balance-button-low">
+                            <a onClick={() => {navigate("/ManageWalletBalance")}}>${balance}</a>
+                          </div>
+                                ) : (
+                          <div className = "balance-button">
+                              <a onClick={() => {navigate("/ManageWalletBalance")}}>${balance}</a>
+                          </div>
+                                    )
+                      ) : (
+                        <div className = "balance-button">
 
-        <a onClick={() => {navigate("/ManageWalletBalance")}}>${balance}</a>
+                        <a onClick={() => {navigate("/ManageWalletBalance")}}>${balance}</a>
+                
+                        </div>
 
-    </div>
-      ) : (
-        <div className = "balance-button">
 
-            <a onClick={() => {navigate("/ManageWalletBalance")}}>${balance}</a>
-    
-        </div>
-      )}
+                      )
+      }
     </div>
   );
 };
