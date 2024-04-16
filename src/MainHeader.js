@@ -16,6 +16,7 @@ const MainHeader = () => {
             <li><Link to="/Home">Add Trip</Link></li>
             <li><Link to="/TripHistory">Trip History</Link></li>
             <li><Link to="/ManageProfile">Edit Profile</Link></li>
+            <Link to="/ManageProfile"><li>Manage Wallet Balance</li></Link>
           </ul>
         </nav>
       </div>
@@ -29,8 +30,7 @@ const MainHeader = () => {
             <CurrentUser />
           </div>
           <ul className="user-options">
-            <li onClick={() => {navigate("/ManageWalletBalance")}}>Manage Wallet Balance</li>
-            <li onClick={() => {navigate("/Logout")}}>Log Out</li>        
+            <Link to ="/Logout"><li>Log Out</li></Link>
           </ul>
         </div>
       </div>
