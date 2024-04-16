@@ -604,6 +604,7 @@ const handleAddTrip = async (index, mode) => {
               
               console.log("Trip added with ID: ", docRef.id);
               console.log("index for tripDB selected is: ", index);
+              window.location.href = "/TripHistory";
           } else {
               console.error("User not logged in.");
           }
