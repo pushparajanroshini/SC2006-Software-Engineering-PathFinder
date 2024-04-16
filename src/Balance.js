@@ -10,7 +10,7 @@ const Balance = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [balance, setBalance] = useState(null);
   const [user, setUser] = useState(null);
-
+  const [isLow, setIsLow] = useState(false);
   useEffect(() => {
     const auth = getAuth();
     //const userDocRef = doc(db, 'users', currentUser.uid);
@@ -24,9 +24,18 @@ const Balance = () => {
           if (docSnap.exists()) {
             console.log("Document data:", docSnap.data());
             const balanceData = docSnap.data()['balance'];
+            const alertLowData = docSnap.data()['alertLowAmount'];
+
+            if (balanceData <= alertLowData) {
+              setIsLow(true);
+            }
+
             const formattedBalance = parseFloat(balanceData).toFixed(2);
             setBalance(formattedBalance);
-            console.log('raw balance is:', balance);
+            console.log('raw balance is:', balanceData);
+            console.log('formatted balance is:', formattedBalance);
+            console.log('alert low number is:', alertLowData);
+
 
           } else {
             console.log("No such document!");
@@ -50,14 +59,16 @@ const Balance = () => {
     return <p>Loading...</p>; // Display a loading indicator while checking authentication status
   }
 
-  let low = false;
+  //let low = false;
 
   return (
     <div>
-      {low ? (
-        <div>
-          <p>Welcome, true</p>
-        </div>
+      {isLow ? (
+        <div className = "balance-button-low">
+
+        <a onClick={() => {navigate("/ManageWalletBalance")}}>${balance}</a>
+
+    </div>
       ) : (
         <div className = "balance-button">
 
