@@ -26,8 +26,8 @@ body, h1, h2, p, ul {
   text-decoration: none;
   color: #0082f8;
 }
-.logo {
-  font-size: 1.5rem;
+.logo img{
+  width: 100px;
   font-weight: bold;
 }
 
@@ -89,6 +89,7 @@ body, h1, h2, p, ul {
   background-color: white;
   border: 1px solid #e7e7e7;
   display: none;
+  z-index: 2;
 }
 
 .user-menu:hover .user-options {
@@ -167,15 +168,14 @@ main {
   position: relative;
   height: 100%;
   display: flex;
-  justify-content: left;
-  ;
   flex-direction: column;
-  width: 30%;
+  width: 40%;
+  margin: 20px;
 }
 
 .map-background {
   position: absolute;
-  left: 700px;
+  left: 750px;
   background-size: cover;
   background-position: center;
   width: 1000px;
@@ -193,11 +193,6 @@ main {
   background: rgba(255, 255, 255, 0.9);
   padding: 1rem;
   border-radius: 4px;
-  z-index: 2; /* To make sure it's above the map */
-}
-
-.addresses{
-  width: 300px;
 }
 
 .address-input {
@@ -206,6 +201,16 @@ main {
   height: 50px;
   margin-bottom: 1rem;
   padding: 0.5rem;
+}
+
+.address-inputs input{
+  width: 100%;
+}
+
+.filter-options{
+  display: flex;
+  width: 100%;
+  height: 25px;
 }
 
 .time-info,
@@ -275,5 +280,5 @@ button:hover {
 }
 
 .routes div{
-  padding: 0 10px 0 10px;
+  padding: 0 10px 0 0;
 }

@@ -3,13 +3,14 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import CurrentUser from './CurrentUser'; // Import the CurrentUser component
 import Balance from './Balance';
+import Logo from './Logo.png';
 
 const MainHeader = () => {
   const navigate = useNavigate();
   return (
     <header className="app-header">
       <div className="header-left">
-        <div className="logo"><Link to="/Home">Logo</Link></div>
+        <div className="logo"><Link to="/Home"><img src={Logo} alt='Logo'/></Link></div>
         <nav>
           <ul className="nav-links">
             <li><Link to="/Home">Add Trip</Link></li>

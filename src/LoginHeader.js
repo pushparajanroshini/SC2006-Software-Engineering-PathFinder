@@ -2,13 +2,14 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import CurrentUser from './CurrentUser'; // Import the CurrentUser component
+import Logo from './Logo.png';
 
 const LoginHeader = () => {
   const navigate = useNavigate();
   return (
     <header className="app-header">
       <div className="header-left">
-        <div className="logo">Logo</div>
+        <div className="logo"><img src={Logo} alt='Logo'/></div>
         <nav>
           <ul className="nav-links">
           </ul>

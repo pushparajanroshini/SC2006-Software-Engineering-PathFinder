@@ -65,7 +65,7 @@ const Register = () => {
   
 
       console.log('User registered successfully');
-      window.location.href = "/TripHistory";
+      window.location.href = "/Home";
     } catch (error) {
       console.error('Error registering user:', error);
       setError(error.message);
