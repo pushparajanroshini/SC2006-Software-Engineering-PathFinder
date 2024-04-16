@@ -97,10 +97,11 @@ try {
       }
       // Update user email if a new email is provided
       if (user.email.trim() !== '' && user.email !== currentUser.email) {
-        verifyBeforeUpdateEmail(auth.currentUser, user.email).then(() => {
+        await verifyBeforeUpdateEmail(auth.currentUser, user.email).then(() => {
 
           // Email updated!
           // ...
+          window.confirm("Please check your new email inbox to verify the new email.");
           console.log("Email updated! ", user);
         }).catch((error) => {
           // An error occurred
