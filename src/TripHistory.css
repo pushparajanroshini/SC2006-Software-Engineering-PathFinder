@@ -1,6 +1,7 @@
+
 /* Header and global styles assumed to be the same */
 
-main{
+main {
   display: flex;
   justify-content: center;
 }
@@ -22,48 +23,49 @@ main{
 .month-navigator span {
   font-weight: bold;
 }
+
 .trip-summary {
-    display: flex;
-    justify-content: space-between;
-    padding: 1rem;
-    /* Add additional styling */
-  }
-  
-  .trip-type {
-    /* Style for bus, MRT, and taxi summaries */
-  }
-  
-  .trip-total {
-    /* Style for the total cost */
-  }
-  
-  .trip {
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    margin: 1rem;
-    padding: 1rem;
-    /* Add additional styling */
-  }
-  
-  .trip-id {
-    font-weight: bold;
-    /* Add additional styling */
-  }
-  
-  .trip-date {
-    /* Add additional styling */
-  }
-  
-  .trip-detail {
-    /* Add additional styling */
-  }
-  
-  .trip-status {
-    /* Style based on the status (Ongoing, Completed, etc.) */
-  }
-  
-  button {
-    /* Style for edit button */
-  }
-  
-  /* Additional styles for layout, typography, and color */
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem;
+  /* Add additional styling */
+}
+
+.trip-type {
+  /* Style for bus, MRT, and taxi summaries */
+}
+
+.trip-total {
+  /* Style for the total cost */
+}
+
+.trip {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin: 1rem;
+  padding: 1rem;
+  /* Add additional styling */
+}
+
+.trip-id {
+  font-weight: bold;
+  /* Add additional styling */
+}
+
+.trip-date {
+  /* Add additional styling */
+}
+
+.trip-detail {
+  /* Add additional styling */
+}
+
+.trip-status {
+  /* Style based on the status (Ongoing, Completed, etc.) */
+}
+
+button {
+  /* Style for edit button */
+}
+
+/* Additional styles for layout, typography, and color */
