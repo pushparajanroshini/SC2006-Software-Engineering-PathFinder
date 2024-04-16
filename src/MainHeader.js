@@ -16,7 +16,7 @@ const MainHeader = () => {
             <li><Link to="/Home">Add Trip</Link></li>
             <li><Link to="/TripHistory">Trip History</Link></li>
             <li><Link to="/ManageProfile">Edit Profile</Link></li>
-            <Link to="/ManageProfile"><li>Manage Wallet Balance</li></Link>
+            <Link to="/ManageWalletBalance"><li>Manage Wallet Balance</li></Link>
           </ul>
         </nav>
       </div>
