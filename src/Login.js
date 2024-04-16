@@ -41,7 +41,16 @@ const Login = () => {
         const errorCode = error.code;
         const errorMessage = error.message;
         console.error("Sign in failed:", error.message);
-        setError('Incorrect password.');
+        switch(error.code){
+          case "auth/missing-password":
+            setError('Please enter password.');
+            break;
+          case 'auth/invalid-credential':
+            setError('Incorrect email or password.');
+            break;
+          default:
+            setError(errorMessage);
+        }
       });
   };
 

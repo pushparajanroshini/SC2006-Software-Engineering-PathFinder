@@ -68,7 +68,16 @@ const Register = () => {
       window.location.href = "/Home";
     } catch (error) {
       console.error('Error registering user:', error);
-      setError(error.message);
+      switch(error.code){
+        case 'auth/invalid-email':
+          setError('Invalid email. Please enter a valid email address.');
+          break;
+        case 'auth/email-already-in-use':
+          setError('Email already exists. Please log in or use a different email address.');
+          break;
+        default:
+          setError(error.message);
+      }
     }
   };
 
