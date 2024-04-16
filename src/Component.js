@@ -546,7 +546,7 @@ const RoutePlanner = () => {
     }));
 };
 
-const handleAddTrip = async () => {
+const handleAddTrip = async (index) => {
   // Prompt user for confirmation
   const confirmFetch = window.confirm("Confirm add trip?");
   
@@ -555,11 +555,25 @@ const handleAddTrip = async () => {
       // Calculate fare and duration for all trips
       const transitRoutes = calculateFareAndDuration();
 
+      //------------Logic for deducting balance----------------------
+      const auth = getAuth();
+      const currentUser = auth.currentUser;
+      const userDocRef = doc(db, 'users', currentUser.uid);
+      const fares = transitRoutes.map(route => route.fare);
+
+        console.log('transitRoutes.fare:', fares[index]);
+        //console.log('routes.fare: ', route.fare);
+        console.log('index is for choosing fare is: ', index)
+       await updateDoc(userDocRef, {
+        balance: increment(-(fares[index]))
+      })
+      //-------------------------------------------------------------
+
       // Create a new trip object to store in the database
       const newTrip = {
           startAddress,
           endAddress,
-          transitRoutes, // Store all the transit routes
+          transitRoutes: transitRoutes[index], // Store all the transit routes
           taxi: { // Store taxi details
               fare: taxiFare, // Taxi fare
               duration: taxiDuration // Taxi duration
@@ -580,6 +594,7 @@ const handleAddTrip = async () => {
               const docRef = await addDoc(userTripsCollectionRef, newTrip);
               
               console.log("Trip added with ID: ", docRef.id);
+              console.log("index for tripDB selected is: ", index);
           } else {
               console.error("User not logged in.");
           }
@@ -625,6 +640,7 @@ const handleAddTrip = async () => {
               type="text"
               placeholder="Start Address"
               value={currentAddress}
+              required
               onChange={(e) => setStartAddress(e.target.value)}
             />
           </div>
@@ -635,6 +651,7 @@ const handleAddTrip = async () => {
               type="text"
               placeholder="End Address"
               value={endAddress}
+              required
               onChange={(e) => setEndAddress(e.target.value)}
             />
           </div>
@@ -671,7 +688,7 @@ const handleAddTrip = async () => {
               <p><strong>Route {index + 1}</strong></p>
               <p><strong>Duration (minutes):</strong> {Math.round(route.duration / 60)}</p>
               <p><strong>Fare:</strong> ${route.fare}</p>
-              <button onClick={handleAddTrip}>Select</button>
+              <button onClick={() => handleAddTrip(index)}>Select</button>
               <br /><br />
               <div className="legs">
                 {route.legs.map((leg, legIndex) => (
@@ -702,7 +719,7 @@ const handleAddTrip = async () => {
                 <p><strong>Duration:</strong> {taxiDuration}</p>
                 <p><strong>Distance (km):</strong> {taxiDistance}</p>
                 <p><strong>Fare:</strong> ${taxiFare}</p>
-                <button onClick={handleAddTrip}>Select</button>
+                <button onClick={() => handleAddTrip()}>Select</button>
               </div>
             )}
           </div>

@@ -47,7 +47,7 @@ const ManageWallet = () => {
     <div className="manage-wallet-container">
       <h1>Manage Wallet</h1>
       <div className="funds-input-container">
-        <label htmlFor="monthlyFunds">Monthly Funds</label>
+        <label htmlFor="monthlyFunds">Set Monthly Funds</label>
         <input
           type="text"
           id="monthlyFunds"
