@@ -24,9 +24,12 @@ const ManageWallet = () => {
     const auth = getAuth();
     const currentUser = auth.currentUser;
     const userDocRef = doc(db, 'users', currentUser.uid);
+    const tenPercentThreshold = 0.1*monthlyFunds;
+
 
     await updateDoc(userDocRef, {
-      balance: increment(monthlyFunds)
+      balance: monthlyFunds,
+      alertLowAmount: tenPercentThreshold
     });
 
     console.log('Updated settings:', {
@@ -51,15 +54,6 @@ const ManageWallet = () => {
           value={`$${monthlyFunds}`}
           onChange={handleMonthlyFundsChange}
         />
-      </div>
-      <div className="notification-checkbox">
-        <input
-          type="checkbox"
-          id="allowNotification"
-          checked={allowNotification}
-          onChange={(e) => setAllowNotification(e.target.checked)}
-        />
-        <label htmlFor="allowNotification">Allow Notification</label>
       </div>
       <div className="alert-checkbox">
         <input
