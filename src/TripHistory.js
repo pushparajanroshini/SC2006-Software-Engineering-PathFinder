@@ -87,8 +87,10 @@ const App = () => {
 };
 
 export default App;*/
+
+
 import React, { useState, useEffect } from 'react';
-import { getFirestore, collection, getDocs } from 'firebase/firestore';
+import {db} from './firebase'; // Import Firebase configuration
 import './TripHistory.css';
 
 const MonthNavigator = () => {
@@ -108,36 +110,32 @@ const MonthNavigator = () => {
       <button onClick={previousMonth}>{'<'}</button>
       <span>{currentMonth}</span>
       <button onClick={nextMonth}>{'>'}</button>
-      {/* You can also include the "press to see next month's record" text as needed */}
+     {/* You can also include the "press to see next month's record" text as needed */}
     </div>
   );
 };
 
-const TripSummary = ({ trips }) => {
-  // Calculate total cost
-  const totalCost = trips.reduce((acc, trip) => acc + parseFloat(trip.cost), 0);
-
+const TripSummary = () => {
   return (
     <div className="trip-summary">
-      {trips.map((trip, index) => (
-        <div key={index} className="trip-type">
-          {trip.type} ${trip.cost}
-        </div>
-      ))}
-      <div className="trip-total">Total: ${totalCost.toFixed(2)}</div>
+      <div className="trip-type">Bus $4.0</div>
+      <div className="trip-type">MRT $6.0</div>
+      <div className="trip-type">Taxi $24.0</div>
+      <div className="trip-total">Total: $34.0</div>
     </div>
   );
 };
 
-const Trip = ({ trip }) => {
+const Trip = ({ name, date, startAddress, endAddress, duration, price, status }) => {
   return (
     <div className="trip">
-      <div className="trip-date">{trip.date}</div>
+      <div className="trip-id">{name}</div>
+      <div className="trip-date">{date}</div>
       <div className="trip-detail">
-        {trip.startAddress} → {trip.endAddress} | {trip.duration} | ${trip.fare}
+        {startAddress} → {endAddress} | Duration: {duration} | Price: {price}
       </div>
-      <div className="trip-status">Status: {trip.status}</div>
-      {trip.status === 'Ongoing' && <button>Edit</button>}
+      <div className="trip-status">Status: {status}</div>
+      {status === 'Ongoing' && <button>Edit</button>}
     </div>
   );
 };
@@ -146,29 +144,36 @@ const TripHistory = () => {
   const [trips, setTrips] = useState([]);
 
   useEffect(() => {
-    // Fetch trip data from Firebase Firestore
     const fetchTrips = async () => {
-      const db = getFirestore(); // Get Firestore instance
-      const tripRef = collection(db, 'trips'); // Reference to the 'trips' collection
-      const querySnapshot = await getDocs(tripRef); // Get all documents from the 'trips' collection
-      const tripData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); // Convert query snapshot to array of trip objects
-      setTrips(tripData); // Set trips state with the retrieved data
+      try {
+        const tripsSnapshot = await db.firestore().collection('trips').get();
+        const tripsData = tripsSnapshot.docs.map((doc) => doc.data());
+        setTrips(tripsData);
+      } catch (error) {
+        console.error('Error fetching trips: ', error);
+      }
     };
 
-    fetchTrips(); // Call the fetchTrips function
+    fetchTrips();
   }, []);
 
   return (
     <div className="trip-history">
-      <TripSummary trips={trips} /> {/* Display trip summary */}
+      <TripSummary />
       {trips.map((trip, index) => (
-        <Trip key={index} trip={trip} /> // Display each trip
+        <Trip
+          key={index}
+          name={trip.name}
+          date={trip.date}
+          startAddress={trip.startAddress}
+          endAddress={trip.endAddress}
+          duration={trip.duration}
+          price={trip.price}
+          status={trip.status}
+        />
       ))}
     </div>
   );
 };
 
-
 export default TripHistory;
-
-
