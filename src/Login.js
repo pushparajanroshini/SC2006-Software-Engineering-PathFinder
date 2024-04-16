@@ -34,14 +34,23 @@ const Login = () => {
         console.log("User signed in:", user);
         
         //redirect to triphistory.js 
-        window.location.href="/TripHistory"
+        window.location.href="/Home"
       })
       .catch((error) => {
         // Handle errors here
         const errorCode = error.code;
         const errorMessage = error.message;
         console.error("Sign in failed:", error.message);
-        setError('Incorrect password.');
+        switch(error.code){
+          case "auth/missing-password":
+            setError('Please enter password.');
+            break;
+          case 'auth/invalid-credential':
+            setError('Incorrect email or password.');
+            break;
+          default:
+            setError(errorMessage);
+        }
       });
   };
 
