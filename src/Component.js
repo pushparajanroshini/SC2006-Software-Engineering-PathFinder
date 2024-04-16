@@ -546,7 +546,7 @@ const RoutePlanner = () => {
     }));
 };
 
-const handleAddTrip = async (index) => {
+const handleAddTrip = async (index, mode) => {
   // Prompt user for confirmation
   const confirmFetch = window.confirm("Confirm add trip?");
   
@@ -561,23 +561,32 @@ const handleAddTrip = async (index) => {
       const userDocRef = doc(db, 'users', currentUser.uid);
       const fares = transitRoutes.map(route => route.fare);
 
-        console.log('transitRoutes.fare:', fares[index]);
+        //console.log('transitRoutes.fare:', fares[index]);
         //console.log('routes.fare: ', route.fare);
-        console.log('index is for choosing fare is: ', index)
-       await updateDoc(userDocRef, {
-        balance: increment(-(fares[index]))
-      })
+        //console.log('index is for choosing fare is: ', index)
+
+       if (mode === "transit"){
+        await updateDoc(userDocRef, {
+          balance: increment(-(fares[index]))
+        });
+        
+      }
+      else if (mode === "taxi"){
+        await updateDoc(userDocRef, {
+          balance: increment(-(taxiFare))
+        });
+      }
       //-------------------------------------------------------------
 
       // Create a new trip object to store in the database
       const newTrip = {
           startAddress,
           endAddress,
-          transitRoutes: transitRoutes[index], // Store all the transit routes
-          taxi: { // Store taxi details
+          transitRoutes: mode === "transit" ?  transitRoutes[index] : null, // Store all the transit routes
+          taxi: mode === "taxi" ? { // Store taxi details
               fare: taxiFare, // Taxi fare
               duration: taxiDuration // Taxi duration
-          },
+          } : null,
           timestamp: serverTimestamp() // Add a timestamp for when the trip was added
       };
 
@@ -688,7 +697,7 @@ const handleAddTrip = async (index) => {
               <p><strong>Route {index + 1}</strong></p>
               <p><strong>Duration (minutes):</strong> {Math.round(route.duration / 60)}</p>
               <p><strong>Fare:</strong> ${route.fare}</p>
-              <button onClick={() => handleAddTrip(index)}>Select</button>
+              <button onClick={() => handleAddTrip(index, "transit")}>Select</button>
               <br /><br />
               <div className="legs">
                 {route.legs.map((leg, legIndex) => (
@@ -719,7 +728,7 @@ const handleAddTrip = async (index) => {
                 <p><strong>Duration:</strong> {taxiDuration}</p>
                 <p><strong>Distance (km):</strong> {taxiDistance}</p>
                 <p><strong>Fare:</strong> ${taxiFare}</p>
-                <button onClick={() => handleAddTrip()}>Select</button>
+                <button onClick={() => handleAddTrip(null, "taxi")}>Select</button>
               </div>
             )}
           </div>
