@@ -25,6 +25,7 @@ const RoutePlanner = () => {
   const [taxiFare, setTaxiFare] = useState(null);
   const [date, setDate] = useState('04-16-2024');
   const [time, setTime] = useState('030000');
+  const [routesFetched, setRoutesFetched] = useState(false); // New state to track if routes have been fetched
 
 
 
@@ -253,6 +254,7 @@ const handleFetchRoutes = () => {
               console.error('Error after fetching coordinates:', error);
           });
 
+      setRoutesFetched(true);    
   }).catch(error => {
       console.error('Error fetching authorization token:', error);
   });
@@ -520,6 +522,25 @@ function calculateTaxiFare(distance, time, date) {
     return `${hours}:${minutes}:${seconds}`; // Return the formatted time
   };
 
+  const transitContainerStyle = {
+    display: 'flex',
+    flexWrap: 'wrap',
+    justifyContent: 'space-around',
+    flex: 1,
+    marginRight: '10px',
+    padding: '10px',
+    borderRadius: '10px',
+    backgroundColor: '#f0f0f0'
+  };
+
+  const itineraryStyle = {
+    flex: '1 1 45%',
+    margin: '10px',
+    padding: '10px',
+    borderRadius: '10px',
+    backgroundColor: '#f0f0f0'
+  };
+
 
     return (
   <div className="route-planner">
@@ -600,13 +621,13 @@ function calculateTaxiFare(distance, time, date) {
 
     <div className="route-taxi-container" style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
       {/* Transit Container */}
-      <div className="transit-container" style={{ flex: 1, marginRight: '10px', padding: '10px', borderRadius: '10px', backgroundColor: '#f0f0f0' }}>
+      <div className="transit-container" style={{ ...transitContainerStyle, flex: 1, marginRight: '10px', padding: '10px', borderRadius: '10px', backgroundColor: '#f0f0f0' }}>
       {filteredRoutes.map((route, index) => (
-        <div key={index} className="itinerary">
+        <div key={index} className="itinerary" style={itineraryStyle}>
           <h1>Transit</h1>
           <p><strong>Route {index + 1}</strong></p>
           <p><strong>Duration (minutes):</strong> {Math.round(route.duration / 60)}</p>
-          <p><strong>Fare:</strong> {route.fare}</p>
+          <p><strong>Fare:</strong> ${route.fare}</p>
           <button>Select</button>
           <br /><br />
           <div className="legs">
@@ -628,17 +649,20 @@ function calculateTaxiFare(distance, time, date) {
       </div>
 
       {/* Taxi Container */}
-      <div className="taxi-container" style={{ flex: 1, padding: '10px', borderRadius: '10px', backgroundColor: '#f0f0f0' }}>
-        <h1>Taxi</h1>
-          {1 && (
-            <div>
-            <p><strong>Nearest Taxi:</strong> {nearestTaxi}</p>
-            <p><strong>Duration:</strong> {taxiDuration}</p>
-            <p><strong>Distance (km):</strong> {taxiDistance}</p>
-            <p><strong>Fare:</strong> ${taxiFare}</p>
-        </div>
-        )}
-      </div>
+      {routesFetched && (
+        <div className="taxi-container" style={{ flex: 1, padding: '10px', borderRadius: '10px', backgroundColor: '#f0f0f0' }}>
+          <h1>Taxi</h1>
+            {1 && (
+              <div>
+              {/*<p><strong>Nearest Taxi:</strong> {nearestTaxi}</p>*/}
+              <p><strong>Duration:</strong> {taxiDuration}</p>
+              <p><strong>Distance (km):</strong> {taxiDistance}</p>
+              <p><strong>Fare:</strong> ${taxiFare}</p>
+              <button>Select</button>
+              </div>
+              )}
+          </div>
+      )}
     </div>
   </div>
 );
