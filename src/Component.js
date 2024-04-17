@@ -592,12 +592,12 @@ const handleAddTrip = async (index, mode) => {
 
       try {
           // Get current user
-          const auth = getAuth();
-          const user = auth.currentUser;
-          
-          if (user) {
+          //const auth = getAuth();
+          //const user = auth.currentUser;
+        
               // Reference to the Firestore collection for the current user's trips
-              const userTripsCollectionRef = collection(db, 'users', user.uid, 'trips');
+              //const userTripsCollectionRef = collection(db, 'users', user.uid, 'trips');
+              const userTripsCollectionRef = collection(db, 'trips');
               
               // Add the new trip to the Firestore subcollection
               const docRef = await addDoc(userTripsCollectionRef, newTrip);
@@ -605,9 +605,7 @@ const handleAddTrip = async (index, mode) => {
               console.log("Trip added with ID: ", docRef.id);
               console.log("index for tripDB selected is: ", index);
               window.location.href = "/TripHistory";
-          } else {
-              console.error("User not logged in.");
-          }
+          
       } catch (error) {
           console.error("Error adding trip: ", error);
       }
