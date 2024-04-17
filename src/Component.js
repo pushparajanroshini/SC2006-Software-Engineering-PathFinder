@@ -29,7 +29,7 @@ const RoutePlanner = () => {
   const [date, setDate] = useState('04-16-2024');
   const [time, setTime] = useState('030000');
   const [routesFetched, setRoutesFetched] = useState(false); // New state to track if routes have been fetched
-
+  const [transitRoutes, setTransitRoutes] = useState([]);
 
 
   //const currentDate = new Date().toLocaleString('en-SG', { timeZone: 'Asia/Singapore', month: '2-digit', day: '2-digit', year: 'numeric' }).replace(/\//g, '-');
@@ -546,6 +546,11 @@ const RoutePlanner = () => {
     }));
 };
 
+const updateTransitRoutes = () => {
+  const routes = calculateFareAndDuration(); // Fetch the current route details
+  setTransitRoutes(routes); // Store it in state
+};
+
 const handleAddTrip = async (index, mode) => {
   // Prompt user for confirmation
   const confirmFetch = window.confirm("Confirm add trip?");
@@ -553,7 +558,10 @@ const handleAddTrip = async (index, mode) => {
   // If user confirms
   if (confirmFetch) {
       // Calculate fare and duration for all trips
-      const transitRoutes = calculateFareAndDuration();
+      //const transitRoutes = calculateFareAndDuration();
+
+      // Assuming calculateFareAndDuration has been called and transitRoutes are updated
+    const selectedRoute = transitRoutes[index];
 
       //------------Logic for deducting balance----------------------
       const auth = getAuth();
@@ -579,17 +587,30 @@ const handleAddTrip = async (index, mode) => {
       //-------------------------------------------------------------
 
       // Create a new trip object to store in the database
-      const newTrip = {
-          startAddress,
-          endAddress,
-          transitRoutes: mode === "transit" ?  transitRoutes[index] : null, // Store all the transit routes
-          taxi: mode === "taxi" ? { // Store taxi details
-              fare: taxiFare, // Taxi fare
-              duration: taxiDuration // Taxi duration
-          } : null,
-          timestamp: serverTimestamp() // Add a timestamp for when the trip was added
-      };
+      // const newTrip = {
+      //     startAddress,
+      //     endAddress,
+      //     transitRoutes: mode === "transit" ?  transitRoutes[index] : null, // Store all the transit routes
+      //     taxi: mode === "taxi" ? { // Store taxi details
+      //         fare: taxiFare, // Taxi fare
+      //         duration: taxiDuration // Taxi duration
+      //     } : null,
+      //     timestamp: serverTimestamp() // Add a timestamp for when the trip was added
+      // };
 
+      const newTrip = {
+        startAddress,
+        endAddress,
+        transitRoutes: mode === "transit" ? {
+            fare: selectedRoute.fare, // Explicitly setting the fare
+            duration: selectedRoute.duration // Explicitly setting the duration
+        } : null,
+        taxi: mode === "taxi" ? {
+            fare: taxiFare, // Taxi fare from state
+            duration: taxiDuration // Taxi duration from state
+        } : null,
+        timestamp: serverTimestamp() // Add a timestamp for when the trip was added
+    };
       try {
           // Get current user
           //const auth = getAuth();
