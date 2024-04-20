@@ -259,36 +259,45 @@ const RoutePlanner = () => {
 
   const fetchPTData = (authorizationToken, startAddress, endAddress, date, time, startCoordinates, endCoordinates) => {
     const requestOptions = {
-      headers: {
-        Authorization: authorizationToken,
-        Cookie: "_toffsuid=rB8E8GYL5xNLXUnGBoCUAg=="
-      }
+        headers: {
+            Authorization: authorizationToken,
+            Cookie: "_toffsuid=rB8E8GYL5xNLXUnGBoCUAg=="
+        }
     };
 
     // Ensure the URL is constructed correctly with all parameters
     const routeUrl = `https://www.onemap.gov.sg/api/public/routingsvc/route?start=${startCoordinates.latitude},${startCoordinates.longitude}&end=${endCoordinates.latitude},${endCoordinates.longitude}&routeType=pt&date=${date}&time=${time}&mode=TRANSIT&numItineraries=2`;
 
     return axios.get(routeUrl, requestOptions)
-      .then(routeResponse => {
-        const result = routeResponse.data;
+        .then(routeResponse => {
+            const result = routeResponse.data;
 
-        if (result.plan && result.plan.itineraries) {
-          // Sorting itineraries based on duration (fastest route first)
-          const sortedByDuration = result.plan.itineraries.sort((a, b) => a.duration - b.duration);
-          // Sorting itineraries based on fare (cheapest route first)
-          const sortedByFare = sortedByDuration.sort((a, b) => a.fare - b.fare);
+            if (result.plan && result.plan.itineraries) {
+                // Sorting itineraries based on duration (fastest route first)
+                const sortedByDuration = result.plan.itineraries.sort((a, b) => a.duration - b.duration);
+                
+                // Sorting itineraries based on fare (cheapest route first)
+                const sortedByFare = sortedByDuration.sort((a, b) => a.fare - b.fare);
 
-          setRoutes(sortedByFare);
-        } else {
-          console.log("No itineraries found.");
-          setRoutes([]);
-        }
-      })
-      .catch(error => {
-        console.error('Error fetching routes:', error);
-      });
-  };
+                const routesWithFareAndDuration = sortedByFare.map(itinerary => ({
+                    ...itinerary,
+                    duration: Math.round(itinerary.duration / 60), // Convert duration to minutes
+                    fare: itinerary.fare
+                }));
 
+                setTransitRoutes(routesWithFareAndDuration); // Update transitRoutes with duration and fare
+                setRoutes(sortedByFare); // Update routes state
+            } else {
+                console.log("No itineraries found.");
+                setRoutes([]);
+                setTransitRoutes([]); // Clear transitRoutes if no itineraries are found
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching routes:', error);
+            // Handle error state if needed
+        });
+};
   ///////////////////////////////////////////////////////////////////////////////////////////////
   const fetchTaxiData = (startCoordinates) => {
     const taxiHeaders = new Headers();
@@ -551,86 +560,61 @@ const updateTransitRoutes = () => {
   setTransitRoutes(routes); // Store it in state
 };
 
+
 const handleAddTrip = async (index, mode) => {
-  // Prompt user for confirmation
-  const confirmFetch = window.confirm("Confirm add trip?");
-  
-  // If user confirms
-  if (confirmFetch) {
-      // Calculate fare and duration for all trips
-      //const transitRoutes = calculateFareAndDuration();
+    // Prompt user for confirmation
+    const confirmFetch = window.confirm("Confirm add trip?");
+    
+    // If user confirms
+    if (confirmFetch) {
+        // Assuming calculateFareAndDuration has been called and transitRoutes are updated
+        const selectedRoute = transitRoutes[index];
 
-      // Assuming calculateFareAndDuration has been called and transitRoutes are updated
-    const selectedRoute = transitRoutes[index];
-
-      //------------Logic for deducting balance----------------------
-      const auth = getAuth();
-      const currentUser = auth.currentUser;
-      const userDocRef = doc(db, 'users', currentUser.uid);
-      const fares = transitRoutes.map(route => route.fare);
-
-        //console.log('transitRoutes.fare:', fares[index]);
-        //console.log('routes.fare: ', route.fare);
-        //console.log('index is for choosing fare is: ', index)
-
-       if (mode === "transit"){
-        await updateDoc(userDocRef, {
-          balance: increment(-(fares[index]))
-        });
+        //------------Logic for deducting balance----------------------
+        const auth = getAuth();
+        const currentUser = auth.currentUser;
+        const userDocRef = doc(db, 'users', currentUser.uid); // Reference to the user's document
+        const tripsCollectionRef = collection(userDocRef, 'trips'); // Reference to the 'trips' subcollection within the user's document
         
-      }
-      else if (mode === "taxi"){
-        await updateDoc(userDocRef, {
-          balance: increment(-(taxiFare))
-        });
-      }
-      //-------------------------------------------------------------
-
-      // Create a new trip object to store in the database
-      // const newTrip = {
-      //     startAddress,
-      //     endAddress,
-      //     transitRoutes: mode === "transit" ?  transitRoutes[index] : null, // Store all the transit routes
-      //     taxi: mode === "taxi" ? { // Store taxi details
-      //         fare: taxiFare, // Taxi fare
-      //         duration: taxiDuration // Taxi duration
-      //     } : null,
-      //     timestamp: serverTimestamp() // Add a timestamp for when the trip was added
-      // };
-
-      const newTrip = {
-        startAddress,
-        endAddress,
-        transitRoutes: mode === "transit" ? {
-            fare: selectedRoute.fare, // Explicitly setting the fare
-            duration: selectedRoute.duration // Explicitly setting the duration
-        } : null,
-        taxi: mode === "taxi" ? {
-            fare: taxiFare, // Taxi fare from state
-            duration: taxiDuration // Taxi duration from state
-        } : null,
-        timestamp: serverTimestamp() // Add a timestamp for when the trip was added
-    };
-      try {
-          // Get current user
-          //const auth = getAuth();
-          //const user = auth.currentUser;
+        const fares = transitRoutes.map(route => route.fare);
         
-              // Reference to the Firestore collection for the current user's trips
-              //const userTripsCollectionRef = collection(db, 'users', user.uid, 'trips');
-              const userTripsCollectionRef = collection(db, 'trips');
-              
-              // Add the new trip to the Firestore subcollection
-              const docRef = await addDoc(userTripsCollectionRef, newTrip);
-              
-              console.log("Trip added with ID: ", docRef.id);
-              console.log("index for tripDB selected is: ", index);
-              window.location.href = "/TripHistory";
-          
-      } catch (error) {
-          console.error("Error adding trip: ", error);
-      }
-  }
+        if (mode === "transit") {
+            await updateDoc(userDocRef, {
+                balance: increment(-(fares[index]))
+            });
+        } else if (mode === "taxi") {
+            await updateDoc(userDocRef, {
+                balance: increment(-(taxiFare))
+            });
+        }
+        //-------------------------------------------------------------
+
+        // Create a new trip object to store in the database
+        const newTrip = {
+            startAddress,
+            endAddress,
+            transitRoutes: mode === "transit" ? {
+                fare: selectedRoute.fare, // Explicitly setting the fare
+                duration: selectedRoute.duration // Explicitly setting the duration
+            } : null,
+            taxi: mode === "taxi" ? {
+                fare: taxiFare, // Taxi fare from state
+                duration: taxiDuration // Taxi duration from state
+            } : null,
+            timestamp: serverTimestamp() // Add a timestamp for when the trip was added
+        };
+        try {
+            // Reference to the Firestore collection for the current user's trips
+            // Add the new trip to the Firestore subcollection
+            const docRef = await addDoc(tripsCollectionRef, newTrip);
+            
+            console.log("Trip added with ID: ", docRef.id);
+            console.log("index for tripDB selected is: ", index);
+            //window.location.href = "/TripHistory";
+        } catch (error) {
+            console.error("Error adding trip: ", error);
+        }
+    }
 };
 
 
