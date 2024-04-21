@@ -6,8 +6,6 @@ import { Link } from 'react-router-dom';
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
 const Login = () => {
-  // ... any required state and functions
-
 
   const [formData, setFormData] = useState({
     email: '',
@@ -38,7 +36,6 @@ const Login = () => {
       })
       .catch((error) => {
         // Handle errors here
-        const errorCode = error.code;
         const errorMessage = error.message;
         console.error("Sign in failed:", error.message);
         switch(error.code){

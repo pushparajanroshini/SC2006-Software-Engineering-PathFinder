@@ -1,15 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { getAuth, 
-        updateProfile as updateUserProfile,  
-                          updateEmail, 
-                          updatePassword, 
-                          EmailAuthProvider, 
-                          reauthenticateWithCredential 
-        } from "firebase/auth";
+import { getAuth, updateProfile as updateUserProfile, updatePassword } from "firebase/auth";
 import { reauthUser } from './reauth';
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore";
 import { db } from "./firebase";
-import { sendEmailVerification, verifyBeforeUpdateEmail } from "firebase/auth";
+import { verifyBeforeUpdateEmail } from "firebase/auth";
 import "./Profile.css";
 
 
@@ -55,32 +49,18 @@ const EditProfile = () => {
     try {
       const auth = getAuth();
       const currentUser = auth.currentUser;
-/*
-        await reauthUser(currentUser, user.currentPassword).then(() => {
+
+        try {
+          await reauthUser(currentUser, user.currentPassword);
           console.log("Current Password validated");
-        }).catch((error) => {
-          console.error("Current Password validation failed!", console.error);
+
+          // Continue with the rest of the code here
+        } catch (error) {
+          console.error("Current Password validation failed!", error);
           setError('Current password invalid.');
           return;
-        });
-*/
-try {
-  await reauthUser(currentUser, user.currentPassword);
-  console.log("Current Password validated");
+        }
 
-  // Continue with the rest of the code here
-} catch (error) {
-  console.error("Current Password validation failed!", error);
-  setError('Current password invalid.');
-  return;
-}
-
-      // check for password format
-
-      // check if password and confirm password matched
-
-
-      // Prepare user data to update in Firestore
       const userData = {};
       if (user.firstName.trim() !== '') {
         userData.firstName = user.firstName.trim();
@@ -98,19 +78,13 @@ try {
       // Update user email if a new email is provided
       if (user.email.trim() !== '' && user.email !== currentUser.email) {
         await verifyBeforeUpdateEmail(auth.currentUser, user.email).then(() => {
-
-          // Email updated!
-          // ...
           window.confirm("Please check your new email inbox to verify the new email.");
           console.log("Email updated! ", user);
         }).catch((error) => {
-          // An error occurred
-          // ...
           console.error("Email update failed:", error.message);
         });
         try{
-        //await handleCheckPasswordRequirements();
-        //await handleCheckPasswordMatch();
+
         } catch (error) {
           console.error('Error in handleCheckPWs:', error);
         }
@@ -136,11 +110,8 @@ try {
         else {
 
         await updatePassword(currentUser, user.password).then(() => {
-          // Update successful.
           console.log("Password update successful!", user);
         }).catch((error) => {
-          // An error ocurred
-          // ...
           console.error("Password update failed!", error.message);
 
        });

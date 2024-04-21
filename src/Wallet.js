@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { doc, collection, updateDoc, increment } from "firebase/firestore";
+import { doc, updateDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { db } from "./firebase";
 
 import './ManageWallet.css';
 const ManageWallet = () => {
   const [monthlyFunds, setMonthlyFunds] = useState(100); // default value
-  const [allowNotification, setAllowNotification] = useState(false);
   const [alertWhenLow, setAlertWhenLow] = useState(false);
   
   const handleMonthlyFundsChange = (e) => {
@@ -40,15 +39,8 @@ const ManageWallet = () => {
         enableAlerts: alertWhenLow
       });
     }
-    console.log('Updated settings:', {
-      monthlyFunds,
-      allowNotification,
-      alertWhenLow,
-    });
-
     window.location.reload();
 
-    // You would typically send this data to your backend with an API call
   };
 
   return (

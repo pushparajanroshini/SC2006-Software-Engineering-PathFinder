@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 const CurrentUser = () => {
@@ -30,16 +30,12 @@ const CurrentUser = () => {
       {user ? (
         <div>
           <p>Welcome, {user.displayName}</p>
-          
-        {/*  <p>Email: {user.email}</p> */}
         </div>
       ) : (
         <div>
-        <p><Link to="/Login">Log in</Link></p>      
-
+          <p><Link to="/Login">Log in</Link></p>      
         </div>
         )}
-        
     </div>
   );
 };
