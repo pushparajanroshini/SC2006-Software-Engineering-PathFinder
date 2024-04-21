@@ -34,14 +34,7 @@ const Balance = () => {
             const formattedBalance = parseFloat(balanceData).toFixed(2);
             await setBalance(formattedBalance);
             await setEnableAlerts(enableAlertsData);
-/*
-            await console.log('raw balance is:', balanceData);
-            await console.log('formatted balance is:', formattedBalance);
-            await console.log('alert low number is:', alertLowData);
-            await console.log('enableAlertsData: ', enableAlertsData);
-            await console.log('enableAlertsactual: ', enableAlerts);
-            await console.log('enableAlertsactual: ', enableAlerts);
-*/
+
           } else {
             console.log("No such document!");
           } 
@@ -96,72 +89,3 @@ export default Balance;
 
 
 
-/*
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { doc, getDoc } from "firebase/firestore";
-import { getAuth } from 'firebase/auth';
-import { db } from "./firebase";
-
-const Balance = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [balance, setBalance] = useState(null);
-  useEffect(() => {
-    const auth = getAuth();
-    const currentUser = auth.currentUser;
-    if (!currentUser) {
-        // If currentUser is null, return early
-        setIsLoading(false);
-        return;
-      }
-
-    const userDocRef = doc(db, 'users', currentUser.uid);
-    const fetchUserData = async () => {
-        try {
-          const docSnap = await getDoc(userDocRef);
-          if (docSnap.exists()) {
-            console.log("Document data:", docSnap.data());
-            const balanceData = docSnap.data()['balance'];
-            setBalance(balanceData);
-            console.log('raw balance is:', balance);
-
-          } else {
-            console.log("No such document!");
-          } 
-          
-          setIsLoading(false);
-        }catch (error) {
-            console.error("Error fetching user data:", error);
-            setIsLoading(false); // Set loading to false even in case of an error
-          }
-        };
-    fetchUserData();
-  }, []); // Run only once on component mount
-
-  if (isLoading) {
-    return <p>Loading...</p>; // Display a loading indicator while checking authentication status
-  }
-
-  let low = false;
-
-  return (
-    <div>
-      {low ? (
-        <div>
-          <p>Welcome, true</p>
-        </div>
-      ) : (
-        <div>
-        <a href="/ManageWalletBalance">
-            <p>$ {balance}</p>
-        </a>      
-
-        </div>
-        )}
-        
-    </div>
-  );
-};
-
-export default Balance;
-*/
