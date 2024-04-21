@@ -549,7 +549,7 @@ const RoutePlanner = () => {
 
   const calculateFareAndDuration = () => {
     return filteredRoutes.map((route, index) => ({
-        routeNumber: index + 1,
+        routeNumber: index +1,
         fare: route.fare,
         duration: Math.round(route.duration / 60) // Convert duration to minutes
     }));
@@ -560,69 +560,67 @@ const updateTransitRoutes = () => {
   setTransitRoutes(routes); // Store it in state
 };
 
-
 const handleAddTrip = async (index, mode) => {
   // Prompt user for confirmation
   const confirmFetch = window.confirm("Confirm add trip?");
   
   // If user confirms
   if (confirmFetch) {
-      // Assuming calculateFareAndDuration has been called and transitRoutes are updated
-      const selectedRoute = transitRoutes[index];
+    // Assuming calculateFareAndDuration has been called and transitRoutes are updated
+    const selectedRoute = transitRoutes[transitRoutes.length - 1 -index];
 
-      //------------Logic for deducting balance----------------------
-      const auth = getAuth();
-      const currentUser = auth.currentUser;
-      const userDocRef = doc(db, 'users', currentUser.uid); // Reference to the user's document
-      const tripsCollectionRef = collection(userDocRef, 'trips'); // Reference to the 'trips' subcollection within the user's document
+    //------------Logic for deducting balance----------------------
+    const auth = getAuth();
+    const currentUser = auth.currentUser;
+    const userDocRef = doc(db, 'users', currentUser.uid); // Reference to the user's document
+    const tripsCollectionRef = collection(userDocRef, 'trips'); // Reference to the 'trips' subcollection within the user's document
       
-      const fares = transitRoutes.map(route => route.fare);
-      
-      if (mode === "transit") {
-          await updateDoc(userDocRef, {
-              balance: increment(-(fares[index]))
-          });
-      } else if (mode === "taxi") {
-          await updateDoc(userDocRef, {
-              balance: increment(-(taxiFare))
-          });
+    if (mode === "transit") {
+      // If transit fare is greater than 0, deduct the fare from the balance
+      if (selectedRoute.fare > 0) {
+        await updateDoc(userDocRef, {
+          balance: increment(-selectedRoute.fare)
+        });
       }
-      //-------------------------------------------------------------
+    } else if (mode === "taxi") {
+      // Deduct taxi fare from the balance
+      await updateDoc(userDocRef, {
+        balance: increment(-taxiFare)
+      });
+    }
+    //-------------------------------------------------------------
 
-      // Create a new trip object to store in the database
-      const newTrip = {
-          startAddress,
-          endAddress,
-          transitRoutes: mode === "transit" ? {
-              fare: selectedRoute.fare, // Explicitly setting the fare
-              duration: selectedRoute.duration // Explicitly setting the duration
-          } : null,
-          taxi: mode === "taxi" ? {
-              fare: taxiFare, // Taxi fare from state
-              duration: taxiDuration // Taxi duration from state
-          } : null,
-          timestamp: serverTimestamp() // Add a timestamp for when the trip was added
-      };
-      try {
-          // Reference to the Firestore collection for the current user's trips
-          // Add the new trip to the Firestore subcollection
-          const docRef = await addDoc(tripsCollectionRef, newTrip);
+    // Create a new trip object to store in the database
+    const newTrip = {
+      startAddress,
+      endAddress,
+      transitRoutes: mode === "transit" ? {
+        fare: selectedRoute.fare, // Explicitly setting the fare
+        duration: selectedRoute.duration // Explicitly setting the duration
+      } : null,
+      taxi: mode === "taxi" ? {
+        fare: taxiFare, // Taxi fare from state
+        duration: taxiDuration // Taxi duration from state
+      } : null,
+      timestamp: serverTimestamp() // Add a timestamp for when the trip was added
+    };
+    try {
+      // Reference to the Firestore collection for the current user's trips
+      // Add the new trip to the Firestore subcollection
+      const docRef = await addDoc(tripsCollectionRef, newTrip);
           
-          console.log("Trip added with ID: ", docRef.id);
-          console.log("index for tripDB selected is: ", index);
+      console.log("Trip added with ID: ", docRef.id);
+      console.log("index for tripDB selected is: ", index);
           
-          // Delay the redirection to the trip history page by 2 seconds (2000 milliseconds)
-          setTimeout(() => {
-          window.location.href = "/Component";
-
-          }, 2000);
+      // Delay the redirection to the trip history page by 2 seconds (2000 milliseconds)
+      setTimeout(() => {
+        window.location.href = "/Component";
+      }, 2000);
           
-          window.location.href = "/TripHistory";
-  
-      
-      } catch (error) {
-          console.error("Error adding trip: ", error);
-      }
+      window.location.href = "/TripHistory";
+    } catch (error) {
+      console.error("Error adding trip: ", error);
+    }
   }
 };
 
