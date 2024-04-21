@@ -9,8 +9,6 @@ import { db } from "./firebase";
 const RoutePlanner = () => {
   const [startAddress, setStartAddress] = useState('');
   const [endAddress, setEndAddress] = useState('');
-  //const [date, setDate] = useState('');
-  //const [time, setTime] = useState('');
   const [routes, setRoutes] = useState([]);
   const [filteredRoutes, setFilteredRoutes] = useState([]);
   const [filterOption, setFilterOption] = useState('fastest'); // Default filter option
@@ -20,8 +18,6 @@ const RoutePlanner = () => {
   const [authorizationToken, setAuthorizationToken] = useState('');
   const [cookie, setCookie] = useState('');
   const [currentAddress, setCurrentAddress] = useState(null); // State for building name
-  //const [showRoutes, setShowRoutes] = useState(false); // State to control route box visibility
-  //const [mapMarkerUrl, setMapMarkerUrl] = useState(''); // URL for map with marker
   const [nearestTaxi, setNearestTaxi] = useState(null);
   const [taxiDuration, setTaxiDuration] = useState(null);
   const [taxiDistance, setTaxiDistance] = useState(null);
@@ -32,8 +28,6 @@ const RoutePlanner = () => {
   const [transitRoutes, setTransitRoutes] = useState([]);
 
 
-  //const currentDate = new Date().toLocaleString('en-SG', { timeZone: 'Asia/Singapore', month: '2-digit', day: '2-digit', year: 'numeric' }).replace(/\//g, '-');
-  //const currentTime = new Date().toLocaleString('en-SG', { timeZone: 'Asia/Singapore', hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }).replace(/:/g, '');
 
   useEffect(() => {
     if (routes.length > 0) {
@@ -95,96 +89,6 @@ const RoutePlanner = () => {
         console.error('Error fetching authorization token:', error);
       });
   };
-
-
-
-  //   const handleFetchRoutes = () => {
-
-  //     axios.post('https://www.onemap.gov.sg/api/auth/post/getToken', {
-  //       email: "YONG0257@e.ntu.edu.sg",
-  //       password: "Sc2006sc2006"
-  //     })
-  //     .then(response => {
-  //       const authorizationToken = response.data.access_token;
-
-  //       // Assuming you need the token for both requests; save it if needed
-  //       setAuthorizationToken(authorizationToken);
-
-
-  //       fetchPTData(authorizationToken, startAddress, endAddress, date, time);
-
-  //     })
-  //     .catch(error => {
-  //       console.error('Error fetching authorization token:', error);
-  //     });
-  //   };
-  //   //FetchPTData
-
-  //   const fetchPTData = (authorizationToken, startAddress, endAddress, date, time) => {
-  //     const requestOptions = {
-  //       headers: {
-  //         Authorization: authorizationToken,
-  //         Cookie: "_toffsuid=rB8E8GYL5xNLXUnGBoCUAg=="
-  //       }
-  //     };
-
-  //     const startUrl = `https://www.onemap.gov.sg/api/common/elastic/search?searchVal=${encodeURIComponent(startAddress)}&returnGeom=Y&getAddrDetails=Y`;
-  //     const endUrl = `https://www.onemap.gov.sg/api/common/elastic/search?searchVal=${encodeURIComponent(endAddress)}&returnGeom=Y&getAddrDetails=Y`;
-
-  //     const startDataPromise = axios.get(startUrl, requestOptions);
-  //     const endDataPromise = axios.get(endUrl, requestOptions);
-
-  //     Promise.all([startDataPromise, endDataPromise])
-  // // Inside the Promise.all block of fetchPTData function
-  // .then(([startResponse, endResponse]) => {
-  //   const startResult = startResponse.data.results[0];
-  //   const endResult = endResponse.data.results[0];
-
-  //   // Extract postal codes from start and end results
-  //   const startPostal = parseInt(startResult.POSTAL);
-  //   const endPostal = parseInt(endResult.POSTAL);
-
-  //   // Set start and end coordinates
-  //   const startCoordinates = {
-  //     latitude: parseFloat(startResult.LATITUDE),
-  //     longitude: parseFloat(startResult.LONGITUDE),
-  //     postal: startPostal
-  //   };
-  //   const endCoordinates = {
-  //     latitude: parseFloat(endResult.LATITUDE),
-  //     longitude: parseFloat(endResult.LONGITUDE),
-  //     postal: endPostal
-  //   };
-
-  //   // Update state with coordinates
-  //   setStartCoordinates(startCoordinates);
-  //   setEndCoordinates(endCoordinates);
-
-  //   const routeUrl = `https://www.onemap.gov.sg/api/public/routingsvc/route?start=${startCoordinates.latitude},${startCoordinates.longitude}&end=${endCoordinates.latitude},${endCoordinates.longitude}&routeType=pt&date=${date}&time=${time}&mode=TRANSIT&numItineraries=2`;
-
-  //   return axios.get(routeUrl, requestOptions);
-  // })
-
-  //       .then(routeResponse => {
-  //         const result = routeResponse.data;
-
-  //         if (result.plan && result.plan.itineraries) {
-  //           // Sorting itineraries based on duration (fastest route first)
-  //           result.plan.itineraries.sort((a, b) => a.duration - b.duration);
-
-  //           // Sorting itineraries based on fare (cheapest route first)
-  //           result.plan.itineraries.sort((a, b) => a.fare - b.fare);
-
-  //           setRoutes(result.plan.itineraries);
-  //         } else {
-  //           console.log("No itineraries found.");
-  //           setRoutes([]);
-  //         }
-  //       })
-  //       .catch(error => {
-  //         console.error('Error fetching routes:', error);
-  //       });
-  //   };
 
 
   //fetchcoordinates first
@@ -362,28 +266,6 @@ const RoutePlanner = () => {
   const degreesToRadians = (degrees) => {
     return degrees * (Math.PI / 180);
   };
-
-  // const fetchTaxiName = (taxiCoordinates) => {
-  //   const url = `https://www.onemap.gov.sg/api/public/revgeocode?location=${taxiCoordinates.latitude},${taxiCoordinates.longitude}&buffer=50`;
-  //   axios.get(url, {
-  //       headers: {
-  //           Authorization: `Bearer ${authorizationToken}`,
-  //           Cookie: cookie
-  //       }
-  //   })
-  //   .then((response) => {
-  //       if (response.data.GeocodeInfo && response.data.GeocodeInfo.length > 0) {
-  //           const addressInfo = response.data.GeocodeInfo[0];
-  //           const address = `${addressInfo.BUILDINGNAME || 'N/A'}, ${addressInfo.BLOCK || 'N/A'}, ${addressInfo.ROAD || 'N/A'}`;
-  //           setNearestTaxi(address);
-  //           //fetchRouteData(startCoordinates, taxiCoordinates);
-  //       } else {
-  //           console.log("No address information available for the nearest taxi.");
-  //       }
-  //   })
-  //   .catch((error) => console.error("Error fetching taxi name:", error));
-  // }
-
 
   const fetchTaxiName = (taxiCoordinates) => {
     const url = `https://www.onemap.gov.sg/api/public/revgeocode?location=${taxiCoordinates.latitude},${taxiCoordinates.longitude}&buffer=50`;
